@@ -1,0 +1,19 @@
+[build]
+  publish = "."
+
+[build.environment]
+  CLOUDINARY_CLOUD_NAME = "demo"
+
+[[headers]]
+  for = "/*"
+  [headers.values]
+    X-Content-Type-Options = "nosniff"
+    Referrer-Policy = "strict-origin-when-cross-origin"
+
+[[plugins]]
+  package = "netlify-plugin-checklinks"
+  [plugins.inputs]
+    todoPatterns = [
+      "fonts.googleapis.com",
+      "fonts.gstatic.com"
+    ]
