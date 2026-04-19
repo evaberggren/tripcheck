@@ -1,0 +1,286 @@
+<!DOCTYPE html><html lang="en"><head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+    <meta name="color-scheme" content="light">
+    <title>TripLens — a second opinion before you book</title>
+    <meta name="description" content="TripLens is a decision tool, not a planner. We tell you whether a trip is likely to disappoint — before you book it.">
+    <meta name="theme-color" content="#f7f1e6">
+
+    <link href="https://fonts.googleapis.com/css2?family=Fraunces:ital,opsz,wght@0,9..144,300;0,9..144,400;0,9..144,500;0,9..144,600;1,9..144,300;1,9..144,400&amp;family=Figtree:wght@300;400;500;600&amp;display=swap" rel="stylesheet">
+
+    <link rel="stylesheet" href="/styles.css">
+    <link rel="icon" href="data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 64 64'><rect width='64' height='64' rx='14' fill='%23f1e7d3'/><circle cx='26' cy='32' r='12' fill='none' stroke='%231c1a17' stroke-width='3'/><line x1='35' y1='41' x2='46' y2='52' stroke='%231c1a17' stroke-width='3' stroke-linecap='round'/></svg>">
+  </head>
+  <body>
+    <div class="grain" aria-hidden="true"></div>
+
+    <header class="site-header">
+      <a class="wordmark" href="/" aria-label="TripLens, home">
+        <svg class="wordmark__lens" viewBox="0 0 32 32" aria-hidden="true" focusable="false">
+          <circle cx="13" cy="13" r="9" fill="none" stroke="currentColor" stroke-width="1.6"></circle>
+          <line x1="19.5" y1="19.5" x2="28" y2="28" stroke="currentColor" stroke-width="1.6" stroke-linecap="round"></line>
+        </svg>
+        <span class="wordmark__text">TripLens</span>
+      </a>
+      <nav class="site-nav" aria-label="Primary">
+        <span class="site-nav__tag">Est. 2026 · Lisbon / New York</span>
+        <a class="site-nav__link" href="#manifesto">Manifesto</a>
+      </nav>
+    </header>
+
+    <main id="app" class="app">
+      <!-- ============================== ENTRY SCREEN ============================== -->
+      <section class="view view--entry" data-view="entry" aria-labelledby="entry-heading">
+        <div class="entry__editorial">
+          <p class="entry__kicker">A second opinion · Issue N<span class="small-caps">o</span> 01</p>
+          <h1 id="entry-heading" class="entry__headline">
+            Run your trip through
+            <span class="entry__headline-accent">TripLens</span>.
+          </h1>
+          <p class="entry__dek">
+            Before you book, we tell you the honest truth: whether this trip is
+            likely to deliver the feeling you’re buying it for — or quietly
+            disappoint.
+          </p>
+
+          <aside class="entry__quote" aria-hidden="true">
+            <span class="entry__quote-mark">“</span>
+            <p>
+              I almost booked five nights in Santorini in August. TripLens talked
+              me out of it in about ninety seconds.
+            </p>
+            <cite>— Priya Raghavan, returning traveler</cite>
+          </aside>
+        </div>
+
+        <form class="intake" id="intakeForm" novalidate="">
+          <p class="intake__lead">Tell us the trip you’re considering.</p>
+
+          <div class="intake__grid">
+            <label class="field field--span-6">
+              <span class="field__label">Destination</span>
+              <input type="text" name="destination" required="" placeholder="Cinque Terre, Italy" autocomplete="off" spellcheck="false">
+            </label>
+
+            <label class="field field--span-6">
+              <span class="field__label">Departing from</span>
+              <input type="text" name="origin" required="" placeholder="Chicago, IL" autocomplete="off" spellcheck="false">
+            </label>
+
+            <label class="field field--span-3">
+              <span class="field__label">Arrive</span>
+              <input type="date" name="startDate" required="">
+            </label>
+
+            <label class="field field--span-3">
+              <span class="field__label">Depart</span>
+              <input type="date" name="endDate" required="">
+            </label>
+
+            <label class="field field--span-3">
+              <span class="field__label">Travelers</span>
+              <input type="number" name="travelers" min="1" max="12" value="2" required="">
+            </label>
+
+            <label class="field field--span-3">
+              <span class="field__label">Budget, total (USD)</span>
+              <input type="number" name="budget" min="200" step="50" placeholder="4,200" required="">
+            </label>
+          </div>
+
+          <fieldset class="chips" data-name="vibes" data-max="3">
+            <legend>
+              The vibe you’re hoping for
+              <span class="chips__hint">pick up to three</span>
+            </legend>
+            <div class="chips__row">
+              <label class="chip"><input type="checkbox" value="peaceful"><span>Peaceful</span></label>
+              <label class="chip"><input type="checkbox" value="luxury"><span>Luxury</span></label>
+              <label class="chip"><input type="checkbox" value="aesthetic"><span>Aesthetic</span></label>
+              <label class="chip"><input type="checkbox" value="adventure"><span>Adventure</span></label>
+              <label class="chip"><input type="checkbox" value="social"><span>Social</span></label>
+            </div>
+          </fieldset>
+
+          <fieldset class="chips" data-name="mustHaves">
+            <legend>
+              Non-negotiables
+              <span class="chips__hint">pick any</span>
+            </legend>
+            <div class="chips__row">
+              <label class="chip"><input type="checkbox" value="walkable"><span>Walkable</span></label>
+              <label class="chip"><input type="checkbox" value="beach"><span>Beach</span></label>
+              <label class="chip"><input type="checkbox" value="luxury-hotel"><span>Luxury hotel</span></label>
+              <label class="chip"><input type="checkbox" value="low-crowds"><span>Low crowds</span></label>
+              <label class="chip"><input type="checkbox" value="good-food"><span>Good food</span></label>
+            </div>
+          </fieldset>
+
+          <div class="intake__grid intake__grid--tight">
+            <fieldset class="radios field--span-6">
+              <legend class="field__label">What worries you most</legend>
+              <div class="radios__row">
+                <label class="radio"><input type="radio" name="concern" value="crowds" required=""><span>Crowds</span></label>
+                <label class="radio"><input type="radio" name="concern" value="weather"><span>Weather</span></label>
+                <label class="radio"><input type="radio" name="concern" value="cost"><span>Cost</span></label>
+                <label class="radio"><input type="radio" name="concern" value="disappointment"><span>Disappointment</span></label>
+              </div>
+            </fieldset>
+
+            <fieldset class="radios field--span-6">
+              <legend class="field__label">How you travel</legend>
+              <div class="radios__row">
+                <label class="radio"><input type="radio" name="style" value="wanderer" required=""><span>Wanderer</span></label>
+                <label class="radio"><input type="radio" name="style" value="planner"><span>Planner</span></label>
+                <label class="radio"><input type="radio" name="style" value="balanced"><span>Balanced</span></label>
+              </div>
+            </fieldset>
+          </div>
+
+          <div class="intake__footer">
+            <p class="intake__reassure">
+              No account. No upsell. We don’t sell you hotels.
+            </p>
+            <button type="submit" class="cta" id="analyzeBtn">
+              <span class="cta__label">Analyze my trip</span>
+              <svg class="cta__arrow" viewBox="0 0 24 24" aria-hidden="true">
+                <path d="M4 12h15m0 0-5.5-5.5M19 12l-5.5 5.5" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"></path>
+              </svg>
+            </button>
+          </div>
+
+          <p class="intake__error" id="intakeError" hidden=""></p>
+        </form>
+
+        <footer id="manifesto" class="entry__manifesto">
+          <h2>A short manifesto.</h2>
+          <p>
+            Most travel sites exist to move you through a booking funnel. They
+            reward your enthusiasm and leave the reckoning for after you land.
+            We do the opposite. TripLens is a single question, asked honestly:
+            <em>is this the right trip, at the right time, for you?</em>
+          </p>
+        </footer>
+      </section>
+
+      <!-- ============================ PROCESSING SCREEN ============================ -->
+      <section class="view view--processing" data-view="processing" aria-labelledby="processing-heading" hidden="">
+        <div class="processing__stage">
+          <div class="processing__orb" aria-hidden="true">
+            <div class="processing__orb-core"></div>
+            <div class="processing__orb-ring processing__orb-ring--a"></div>
+            <div class="processing__orb-ring processing__orb-ring--b"></div>
+          </div>
+          <p class="processing__kicker">Examining</p>
+          <h2 id="processing-heading" class="processing__headline">
+            We’re looking for the reasons this trip might disappoint you.
+          </h2>
+          <ul class="processing__steps" id="processingSteps">
+            <li data-step="">Checking crowd pressure</li>
+            <li data-step="">Analyzing timing &amp; season</li>
+            <li data-step="">Evaluating vibe match</li>
+            <li data-step="">Looking for hidden risks</li>
+          </ul>
+        </div>
+      </section>
+
+      <!-- ============================== RESULTS SCREEN ============================== -->
+      <section class="view view--results" data-view="results" aria-labelledby="results-heading" hidden="">
+        <div class="results__meta">
+          <p class="results__eyebrow">
+            <span id="resultTripline">Cinque Terre · 5 nights · Aug 3</span>
+          </p>
+          <h2 id="results-heading" class="results__heading">Your diagnosis</h2>
+        </div>
+
+        <!-- Verdict -->
+        <article class="verdict" id="verdictCard">
+          <p class="verdict__label">TripLens verdict</p>
+          <h3 class="verdict__headline" id="verdictHeadline">Proceed with caution</h3>
+          <div class="verdict__confidence">
+            <span class="verdict__confidence-label">Confidence</span>
+            <div class="verdict__confidence-track" aria-hidden="true">
+              <div class="verdict__confidence-fill" id="confidenceFill" style="width: 82%"></div>
+            </div>
+            <span class="verdict__confidence-value" id="confidenceValue">82%</span>
+          </div>
+        </article>
+
+        <!-- Biggest risk -->
+        <article class="biggest-risk">
+          <p class="biggest-risk__label">Your biggest risk</p>
+          <blockquote class="biggest-risk__quote" id="biggestRisk">
+            This destination will likely feel more crowded and chaotic than the
+            peaceful experience you’re expecting.
+          </blockquote>
+        </article>
+
+        <!-- Two-column: Why + Risk breakdown -->
+        <div class="results__duo">
+          <article class="why">
+            <h4 class="section-title">Why we’re saying this</h4>
+            <ul class="why__list" id="whyList">
+              <!-- bullets injected -->
+            </ul>
+          </article>
+
+          <article class="risks">
+            <h4 class="section-title">Risk breakdown</h4>
+            <ul class="risks__list" id="risksList">
+              <!-- bars injected -->
+            </ul>
+          </article>
+        </div>
+
+        <!-- Smarter move -->
+        <article class="smarter">
+          <h4 class="section-title">What to do instead</h4>
+          <ol class="smarter__list" id="smarterList">
+            <!-- items injected -->
+          </ol>
+        </article>
+
+        <!-- Alternatives -->
+        <article class="alternatives">
+          <h4 class="section-title">Alternatives worth considering</h4>
+          <div class="alternatives__grid" id="alternativesGrid">
+            <!-- cards injected -->
+          </div>
+        </article>
+
+        <!-- Planning style -->
+        <article class="style-note">
+          <p class="style-note__label">A note on how you travel</p>
+          <p class="style-note__body" id="styleNote">
+            You’re a wanderer, but this destination rewards a planner. If you
+            wing it, you may miss the quiet coves and overpay for the loud ones.
+          </p>
+        </article>
+
+        <!-- Iteration -->
+        <footer class="iterate">
+          <p class="iterate__label">Not quite? Try it again with…</p>
+          <div class="iterate__buttons">
+            <button type="button" class="ghost-btn" data-iterate="dates">Different dates</button>
+            <button type="button" class="ghost-btn" data-iterate="destination">
+              A different destination
+            </button>
+            <button type="button" class="ghost-btn" data-iterate="budget">A new budget</button>
+            <button type="button" class="ghost-btn ghost-btn--primary" data-iterate="reset">
+              Start over
+            </button>
+          </div>
+        </footer>
+      </section>
+    </main>
+
+    <footer class="site-footer">
+      <p>
+        © <span id="year">2026</span> TripLens. A decision tool, not a planner.
+      </p>
+    </footer>
+
+    <script type="module" src="/app.js"></script>
+  
+
+</body></html>
