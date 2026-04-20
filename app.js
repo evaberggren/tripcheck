@@ -217,22 +217,22 @@ function generateInstantResult(trip) {
     : "";
 
   const outcomeByVibe = {
-    peaceful: `As planned, this trip puts you in crowded, high-traffic zones at peak hours \u2014 which kills the calm you\u2019re after.`,
-    luxury: `As planned, this trip keeps you in ${dest}\u2019s most generic tier \u2014 which blocks the elevated experience you came for.`,
-    aesthetic: `As planned, this trip drops you into the most photographed, crowded corners \u2014 which flattens the aesthetic you want.`,
-    adventure: `As planned, this trip pads days with logistics and caf\u00e9s \u2014 which crowds out the adventure you came for.`,
-    social: `As planned, this trip isolates you in quieter zones at the wrong hours \u2014 which kills the energy you want.`,
+    peaceful: `As planned, this trip drops you into the same streets every other traveler is photographing \u2014 at the hours they\u2019re all there.`,
+    luxury: `As planned, your budget lands in ${dest}\u2019s most generic tier \u2014 and blocks the elevated trip you came for.`,
+    aesthetic: `As planned, you land in the corners everyone else is already photographing \u2014 which flattens the aesthetic you wanted.`,
+    adventure: `As planned, the days get eaten by logistics and caf\u00e9s \u2014 and the adventure never lands.`,
+    social: `As planned, you\u2019re in the quiet zones at the wrong hours \u2014 and miss the energy you came for.`,
   };
   const firstVibe = vibes[0];
   const verdictOutcome =
     outcomeByVibe[firstVibe] ||
-    `As planned, this trip puts you in the default routing \u2014 which works against what you\u2019re actually hoping for.`;
+    `As planned, this trip runs on the default tourist routing \u2014 not the one you\u2019re actually hoping for.`;
 
   const biggestRiskByConcern = {
-    crowds: `Basing in one high-traffic area of ${dest} puts you in constant noise \u2014 and blocks the calm you came for.`,
-    weather: `Your dates land inside ${dest}\u2019s worst weather window \u2014 and block the conditions you came for.`,
-    cost: `Your current budget puts you in ${dest}\u2019s most generic tier \u2014 and blocks the quality you came for.`,
-    disappointment: `Routing ${dest} from one base stretches the trip thin \u2014 and blocks the version you\u2019re imagining.`,
+    crowds: `Basing in the most obvious tourist corridor of ${dest} keeps you inside constant noise \u2014 and blocks the calm you came for.`,
+    weather: `Your dates fall inside ${dest}\u2019s worst weather window \u2014 and block the conditions you came for.`,
+    cost: `Your budget lands you in ${dest}\u2019s most generic tier \u2014 and blocks the quality you came for.`,
+    disappointment: `Running ${dest} from one base stretches the trip thin \u2014 and blocks the version you\u2019re imagining.`,
   };
   const biggestRisk = biggestRiskByConcern[concern] || biggestRiskByConcern.crowds;
 
@@ -300,8 +300,7 @@ function generateInstantResult(trip) {
 
   return {
     verdict: "Proceed with caution",
-    verdictPosition: "We would book this \u2014 with the changes below.",
-    verdictUrgency: "You\u2019re close \u2014 but your current setup works against your goals.",
+    verdictUrgency: "You\u2019re close \u2014 but this setup works against you.",
     verdictOutcome,
     confidence: 78,
     biggestRisk,
@@ -324,9 +323,9 @@ function generateInstantResult(trip) {
     finalPlan,
     planTeaser,
     whyThisWorks:
-      "you\u2019re separating calm and intensity instead of forcing both into one rhythm.",
+      "you\u2019re separating calm and intensity \u2014 not forcing both into the same base.",
     finalPlanOwnership: "",
-    styleNote: `You\u2019re ${style} \u2014 but ${dest} punishes loose planning. Without early starts and a split, the trip defaults to crowded and forgettable.`,
+    styleNote: `You\u2019re ${style} \u2014 but ${dest} punishes loose planning. Skip the early starts and the split, and the trip defaults to noise you\u2019ll forget by the flight home.`,
   };
 }
 
@@ -351,10 +350,6 @@ function renderResults(trip, r, opts = {}) {
   verdictCard.dataset.verdict = verdictKey;
   document.getElementById("verdictHeadline").textContent = verdictPhrase(verdictKey);
 
-  const verdictPositionEl = document.getElementById("verdictPosition");
-  const verdictPosition = (r.verdictPosition || "").toString().trim() || defaultPosition(verdictKey);
-  verdictPositionEl.textContent = verdictPosition;
-
   const verdictOutcomeEl = document.getElementById("verdictOutcome");
   const verdictOutcome = (r.verdictOutcome || r.verdictSummary || "").toString().trim();
   if (verdictOutcome) {
@@ -365,10 +360,10 @@ function renderResults(trip, r, opts = {}) {
     verdictOutcomeEl.hidden = true;
   }
 
-  // urgency line — creates action pressure under the verdict headline
+  // urgency line — the one-line verdict beneath the headline, covers all paths
   const verdictUrgencyEl = document.getElementById("verdictUrgency");
   const urgencyText = (r.verdictUrgency || "").toString().trim() || defaultUrgency(verdictKey);
-  if (urgencyText && verdictKey !== "proceed") {
+  if (urgencyText) {
     verdictUrgencyEl.textContent = urgencyText;
     verdictUrgencyEl.hidden = false;
   } else {
@@ -684,16 +679,10 @@ function verdictPhrase(key) {
   return "Proceed with caution";
 }
 
-function defaultPosition(key) {
-  if (key === "proceed") return "We would book this trip.";
-  if (key === "rethink") return "We would not book this trip as planned.";
-  return "We would book this — with the changes below.";
-}
-
 function defaultUrgency(key) {
-  if (key === "proceed") return "";
-  if (key === "rethink") return "This trip, as planned, will not deliver what you want.";
-  return "You\u2019re close \u2014 but your current setup works against your goals.";
+  if (key === "proceed") return "We would book this trip.";
+  if (key === "rethink") return "This trip, as planned, won\u2019t deliver what you want.";
+  return "You\u2019re close \u2014 but this setup works against you.";
 }
 
 function normalizeLevel(v) {
@@ -753,9 +742,7 @@ function joinDescriptors(words) {
 function buildOwnershipLine(trip, serverText) {
   const text = (serverText || "").toString().trim();
   if (text) return text;
-  const descriptors = describeTripVibes(trip);
-  const joined = joinDescriptors(descriptors) || "calm, intentional";
-  return `This version actually delivers the ${joined} trip you\u2019re looking for.`;
+  return "This is what the trip was supposed to be.";
 }
 
 // Personalization callback echoes the user's OWN chosen inputs back at them,
@@ -793,18 +780,10 @@ function buildPersonalizationCallback(trip, serverText) {
   if (text) return text;
   const inputs = describeTripInputs(trip);
   const joined = joinDescriptors(inputs);
-  const deliverance =
-    inputs.length >= 3
-      ? "all three"
-      : inputs.length === 2
-      ? "both"
-      : inputs.length === 1
-      ? "that"
-      : "what you asked for";
   if (!joined) {
-    return "You told us what you wanted \u2014 this version is the first one that actually delivers it.";
+    return "You want the version that actually works. Your current plan isn\u2019t it. This is.";
   }
-  return `You said you wanted ${joined} \u2014 this version is the first one that actually delivers ${deliverance}.`;
+  return `You want ${joined}. Your current plan delivers the opposite. This is the one that does.`;
 }
 
 function escapeHtml(s) {
@@ -857,7 +836,7 @@ function buildPatternInsight(trip) {
     return "They land in the most generic tier \u2014 the one spend that rarely pays off.";
   }
   if (trip.concern === "crowds") {
-    return "They base in high-traffic areas and try to find calm inside them.";
+    return "They base in the obvious tourist corridor and try to find calm inside it.";
   }
   if (trip.concern === "weather") {
     return "They blame the season \u2014 but the routing, not the weather, is what ruins the days.";
@@ -865,7 +844,7 @@ function buildPatternInsight(trip) {
   if (trip.concern === "disappointment") {
     return "The disappointment almost always comes from the base, not the destination.";
   }
-  return "They base in high-traffic areas and try to find calm inside them.";
+  return "They base in the obvious tourist corridor and try to find calm inside it.";
 }
 
 // ---------------------------- presets (quick-start trips)
