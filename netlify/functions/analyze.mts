@@ -52,9 +52,29 @@ Return a single JSON object with EXACTLY these keys:
 
 {
   "verdict": "Proceed" | "Proceed with caution" | "Rethink this trip",
-  "verdictUrgency": "THE one-line verdict shown directly beneath the headline. Decisive, calm, zero softness. Under 14 words. Use EXACTLY one of these shapes, chosen to match the verdict: for 'Proceed' use 'We would book this trip.'; for 'Proceed with caution' use 'You're close — but this setup works against you.'; for 'Rethink this trip' use 'This trip, as planned, won't deliver what you want.' No 'needs X changes' phrasing. No hedging. No variations.",
+  "verdictUrgency": "THE one-line verdict shown directly beneath the headline. Decisive, calm, zero softness. Under 14 words. Use EXACTLY one of these shapes, chosen to match the verdict: for 'Proceed' use 'We would book this trip.'; for 'Proceed with caution' use 'Your current plan works against you. We have the version that doesn\\u2019t.'; for 'Rethink this trip' use 'This trip, as planned, won\\u2019t deliver what you want.' No 'needs X changes' phrasing. No hedging. No variations.",
   "verdictOutcome": "ONE declarative sentence that CONNECTS THE MISMATCH TO THE LOST EXPERIENCE. Begin with 'As planned,'. Name a CONCRETE, destination-specific failure scene (a named neighborhood, a photographed corridor, peak hours, a specific tier) AND the specific feeling or experience it kills. Em-dash connective. 18–28 words. Banned: 'high-traffic', 'crowded zones' (too generic). Shape: 'As planned, this trip drops you into the same streets every other traveler is photographing — at the hours they're all there.' The failure must feel visual and real.",
   "confidence": integer 0–100,
+  "diagnosticSignals": [
+    "EXACTLY 5 short mechanical signals detected during the diagnostic phase. Each is a terse fragment of 3–6 words, no full sentences, no article 'the/a'. Shape examples: 'Peak crowd window detected', 'Low vibe alignment', 'Routing conflict detected', 'Base-location mismatch', 'Hour-window pressure 10:30am–1pm', 'Fix identified · confidence high'. Ordered: first 4 name specific detected risks, the fifth is always 'Fix identified · confidence high' or a close variant."
+  ],
+  "predictiveInsights": [
+    {
+      "signal": "ONE highly specific predictive observation with a concrete number, window, or constraint. 6–14 words. Must feel like domain intelligence, not advice. Shape examples: 'Peak crowd surge at the Trevi begins 10:30am', 'Ferry cadence to Procida collapses after 6:15pm', 'Lodging price ceiling shifts +38% on your dates', 'Last reliable train from Vernazza leaves 19:42'.",
+      "body": "ONE short supporting line explaining the consequence for THIS traveler's plan. 12–22 words. Declarative. Reference the traveler's default routing or timing. Shape: 'Your default routing arrives between 11:15am and noon. Expect 3× the wait you'd have before 9:00am.' No hedging."
+    }
+  ],
+  "beforeAfter": {
+    "before": [
+      "EXACTLY 4 short bullets describing the failure modes of the CURRENT plan. Each under 10 words. Imperative-adjacent fragments, destination-specific. Shape: 'One base in Trastevere corridor', 'Sights hit during 10:30am\\u20131pm surge', 'Evenings pulled into loudest stretch', 'No slack \\u2014 one delay compresses everything'."
+    ],
+    "after": [
+      "EXACTLY 4 short bullets describing the CORRECTED version. Each under 10 words. Paired with the 'before' bullets 1:1 — same index = same dimension. Shape: 'Two bases \\u2014 quieter start, livelier second half', 'Sights done before 9am; afternoons protected', 'Evenings routed to calm adjacencies', 'One full day held open \\u2014 absorbs delays'."
+    ],
+    "improves": [
+      "EXACTLY 3 short improvement chips. Each is a terse fragment with a numeric or directional shift. Under 6 words. Shape examples: 'Crowd exposure \\u2212 40%', 'Morning windows restored', 'One unplanned day protected', 'Budget stretch reduced'."
+    ]
+  },
   "biggestRisk": "ONE concrete punchy sentence naming a specific decision (base, timing, routing) that blocks what the traveler actually wants. Name a real neighborhood or behavior, not 'high-traffic' or 'busy'. 14–22 words. Shape: 'Basing in Copacabana puts the city's loudest stretch between you and the calm you came for.' No 'may', no metaphor, no vague 'energy'.",
   "patternOpener": "ONE short opener naming this destination and ending with a colon. Use EXACT shape: 'Most people get ${trip.destination.split(/[,\u2014\-]/)[0].trim() || trip.destination} wrong the same way:'. Under 10 words. No variation.",
   "patternInsight": "ONE short generic pattern sentence that completes the opener — the mistake travelers repeatedly make at this destination. Under 18 words. Declarative, present tense, starts with 'They'. Prefer named neighborhoods over 'high-traffic'. Shape examples: 'They base in the obvious tourist corridor and try to find calm inside it.', 'They stack nightlife and calm into one base — and get neither.' Insider-knowledge tone, not advice.",
@@ -82,7 +102,7 @@ Return a single JSON object with EXACTLY these keys:
   ],
   "betterVersionOutro": "ONE closing sentence beneath the alternatives. Starts with 'This version delivers your goal:' and names the traveler's actual vibes in their own words (drawn from Desired vibes). Under 18 words.",
   "personalizationCallback": "ONE sentence BEFORE the final plan using the clean 'You want X. Your current plan creates Y. This is Z.' contrast shape. Pull X from the traveler's Desired vibes (${trip.vibes.join(", ") || "—"}) and Non-negotiables (${trip.mustHaves.join(", ") || "—"}), joined naturally. Y is the opposite outcome their current plan creates (noise, generic, crowded, etc.). Z is 'This is the one that does.' or a near variant. Shape: 'You want peaceful, aesthetic, low-crowd. Your current plan delivers the opposite. This is the one that does.' Under 28 words. No 'you said you wanted' framing.",
-  "finalPlanLeadin": "ONE short bridging line above the final itinerary that makes it feel bookable, not theoretical. Under 14 words. Use EXACT shape: 'If you book this version, here's how it plays out:' — or a near-identical variant with the same 'If you book X — here's how it plays out' frame. No 'could', no 'might'.",
+  "finalPlanLeadin": "ONE short bridging line above the final itinerary that makes it feel bookable, not theoretical. Under 14 words. Use EXACT shape: 'Book this version — here is how it plays out:' — or a near-identical variant with the same 'Book this version — here is how it plays out' frame. No 'could', no 'might'.",
   "finalPlan": [
     {
       "days": "ONE short day-range label for this leg. Shape: 'Days 1–4', 'Days 5–9'. Must cover contiguous days starting at Day 1. Across all legs the total must equal the trip length (${nights} nights).",
@@ -96,7 +116,7 @@ Return a single JSON object with EXACTLY these keys:
     "EXACTLY 3 short day lines — a teaser of the day-by-day plan shown under the primary CTA. Each line begins 'Day 1:', 'Day 2:', 'Day 3:' and names 1–3 specific actions, neighborhoods, or landmarks for that day. Under 14 words per line. Must reflect the prescribed version of the trip (better neighborhoods, splits, timing), not the traveler's original plan. Shape examples: 'Day 1: Arrive, settle in Leblon, sunset at Arpoador', 'Day 2: Christ + Sugarloaf early, beach after 3pm', 'Day 3: Hike Dois Irmãos, slow afternoon'."
   ],
   "whyThisWorks": "ONE short sentence AFTER the itinerary explaining WHY this structure works — name the behavioral principle the plan executes (splitting, separating, sequencing). Under 22 words. Shape: 'you're separating calm and intensity — not forcing both into the same base.' Lowercase start (prefixed by 'Why this works:' in UI). No hedging.",
-  "finalPlanOwnership": "ONE closing sentence after the final plan. Bookable, provocative, quotable. Do NOT echo the traveler's inputs (that is done by personalizationCallback). Shape options: 'This is what the trip was supposed to be.', 'That's the version worth your credit card.', 'This is the one you book.' Under 12 words. Declarative.",
+  "finalPlanOwnership": "ONE closing sentence after the final plan. Bookable, provocative, quotable. Do NOT echo the traveler's inputs (that is done by personalizationCallback). Shape options: 'This is the version worth your credit card.', 'That\\u2019s the one you book.', 'This is the trip worth committing to.' Under 12 words. Declarative.",
   "styleNote": "TWO sentences in ONE line. Total under 36 words. Sharper and more decisive than a generic style note. First sentence: name the tension between the traveler's style (${trip.style}) and THIS specific destination (${trip.destination}) using 'punishes' or a similarly concrete verb. Second sentence: name the specific failure mode of winging it at this destination in concrete, visual terms (what they'll actually miss). Shape: 'You're ${trip.style}—but ${trip.destination} punishes loose planning. Skip the early starts and the split, and the trip defaults to noise you'll forget by the flight home.'"
 }
 
@@ -104,8 +124,11 @@ Critical rules:
 - Output ONLY the JSON object. No prose, no markdown fencing.
 - Decisive voice throughout. Use "will" not "may", imperatives not suggestions. Ban the words: consider, try, think about, you could, might, should probably, perhaps, it's worth, may want to, very, really, quite.
 - Every line must be scannable in under two seconds. Cut filler, adjectives, wind-up. Prefer shorter, sharper sentences. Every line should either reveal something or move the decision forward.
-- "verdictUrgency" is THE one-line verdict — it carries the book/don't-book statement. Use the exact shape per verdict. No "needs X changes" framing. Calm, not aggressive — but no softness. There is no separate verdictPosition field anymore.
+- "verdictUrgency" is THE one-line verdict — it carries the book/don't-book statement. Use the exact shape per verdict. For 'Proceed with caution', the required shape is 'Your current plan works against you. We have the version that doesn\\u2019t.' — no softness, no hedging.
 - "verdictOutcome" must begin with "As planned," and CONNECT the mismatch to the lost experience using an em-dash. Name the concrete failure scene — a named neighborhood, a photographed corridor, peak hours, a specific tier — and the specific experience it kills. Banned: "high-traffic", "crowded zones" as primary descriptors.
+- "diagnosticSignals" MUST be EXACTLY 5 short mechanical fragments, 3–6 words each. No articles, no full sentences. Ordered: 4 detected-risk signals then 1 "Fix identified · confidence high" (or near variant).
+- "predictiveInsights" MUST be EXACTLY 2 items. Each signal carries a concrete number, time window, or threshold. Each body explains the consequence for THIS traveler's default routing in 12–22 words. No advice phrasing.
+- "beforeAfter.before" and "beforeAfter.after" MUST each be EXACTLY 4 bullets, paired 1:1 by index — same index = same dimension (base, timing, evenings, slack). Each under 10 words. "beforeAfter.improves" MUST be EXACTLY 3 terse improvement chips with a numeric or directional shift ("Crowd exposure − 40%").
 - "biggestRisk" must name a SPECIFIC decision (base, timing, routing) and a real neighborhood or behavior. "high-traffic area" is banned.
 - "patternOpener" must use the exact "Most people get {destination} wrong the same way:" shape, ending with a colon.
 - "patternInsight" starts with "They" and names the repeatable mistake — not advice, not a suggestion. Insider-knowledge tone. Prefer named neighborhoods over generic descriptors.

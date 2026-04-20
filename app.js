@@ -1,7 +1,7 @@
 // TripLens — client flow
-// Entry → results (instant). A subtle overlay acknowledges the analysis
-// without blocking the page; the API call updates the results silently
-// once it returns.
+// Entry → brief diagnostic phase (streaming signals) → results. Signals act
+// as quick proof-of-work before the decision lands; the real API call runs
+// in the background and silently upgrades the content when it returns.
 
 const views = {
   entry: document.querySelector('[data-view="entry"]'),
@@ -11,7 +11,8 @@ const views = {
 const form = document.getElementById("intakeForm");
 const errorEl = document.getElementById("intakeError");
 const analyzeBtn = document.getElementById("analyzeBtn");
-const analyzingOverlay = document.getElementById("analyzingOverlay");
+const diagnosticPhase = document.getElementById("diagnosticPhase");
+const diagnosticPhaseList = document.getElementById("diagnosticPhaseList");
 const yearEl = document.getElementById("year");
 yearEl.textContent = new Date().getFullYear();
 
@@ -91,7 +92,7 @@ form.addEventListener("submit", async (e) => {
 
   analyzeBtn.disabled = true;
 
-  // 1. Generate instant results from the user's inputs and render them.
+  // 1. Generate instant results from the user's inputs and pre-render them.
   const instant = generateInstantResult(trip);
   latestTrip = trip;
   latestResult = instant;
@@ -100,20 +101,21 @@ form.addEventListener("submit", async (e) => {
   resetSavePanel();
   renderResults(trip, instant);
 
-  // 2. Swap view immediately — no processing gate.
-  showView("results");
+  // 2. Run the diagnostic phase: ~1.4s of streaming signals, then reveal.
+  await runDiagnosticPhase(trip, instant);
 
-  // 3. Subtle non-blocking overlay: fades in, lingers briefly, fades out.
-  flashAnalyzingOverlay();
+  // 3. Swap view — results already populated and ready.
+  showView("results");
 
   // 4. Fire the real analysis in the background and swap in silently.
   analyzeTrip(trip)
     .then((real) => {
       if (real && typeof real === "object") {
-        latestResult = real;
+        const merged = { ...instant, ...real };
+        latestResult = merged;
         latestShareId = null;
         resetShareState();
-        renderResults(trip, real, { silent: true });
+        renderResults(trip, merged, { silent: true });
       }
     })
     .catch((err) => {
@@ -165,21 +167,174 @@ function validate(t) {
   return null;
 }
 
-// ---------------------------- non-blocking analyzing overlay
+// ---------------------------- diagnostic phase
+// Streams 4–5 rapid "diagnostic signals" in a centered panel before the
+// results land. Total runtime ~1.4–1.6s. This is a perceived-intelligence
+// device — the instant result is already rendered behind it.
 
-function flashAnalyzingOverlay() {
-  if (!analyzingOverlay) return;
-  analyzingOverlay.hidden = false;
-  analyzingOverlay.dataset.state = "in";
-  // After ~1.5s, begin fade-out.
-  setTimeout(() => {
-    analyzingOverlay.dataset.state = "out";
-  }, 1500);
-  // Hide fully after the fade-out completes.
-  setTimeout(() => {
-    analyzingOverlay.dataset.state = "";
-    analyzingOverlay.hidden = true;
-  }, 2400);
+function runDiagnosticPhase(trip, instant) {
+  if (!diagnosticPhase || !diagnosticPhaseList) return Promise.resolve();
+  const signals = (instant && Array.isArray(instant.diagnosticSignals) && instant.diagnosticSignals.length)
+    ? instant.diagnosticSignals
+    : generateDiagnosticSignals(trip);
+
+  diagnosticPhaseList.innerHTML = "";
+  diagnosticPhase.hidden = false;
+  diagnosticPhase.dataset.state = "in";
+
+  const stepDelay = 240;
+  const initialDelay = 120;
+
+  return new Promise((resolve) => {
+    signals.forEach((text, i) => {
+      setTimeout(() => {
+        const li = document.createElement("li");
+        li.className = "diagnostic-signal";
+        li.innerHTML = `
+          <span class="diagnostic-signal__mark" aria-hidden="true"></span>
+          <span class="diagnostic-signal__text"></span>
+        `;
+        li.querySelector(".diagnostic-signal__text").textContent = text;
+        diagnosticPhaseList.appendChild(li);
+        requestAnimationFrame(() => {
+          li.dataset.state = "in";
+        });
+      }, initialDelay + i * stepDelay);
+    });
+
+    const total = initialDelay + signals.length * stepDelay + 340;
+    setTimeout(() => {
+      diagnosticPhase.dataset.state = "out";
+    }, total);
+    setTimeout(() => {
+      diagnosticPhase.dataset.state = "";
+      diagnosticPhase.hidden = true;
+      resolve();
+    }, total + 360);
+  });
+}
+
+// Four–five quick diagnostic signals built from the trip inputs. These become
+// the streaming phase AND are echoed in a persistent ribbon in the results.
+function generateDiagnosticSignals(trip) {
+  const vibes = trip.vibes || [];
+  const mustHaves = trip.mustHaves || [];
+  const has = (x) => vibes.includes(x) || mustHaves.includes(x);
+  const signals = [];
+
+  if (trip.concern === "crowds" || has("low-crowds") || has("peaceful")) {
+    signals.push("Peak crowd window detected");
+  } else {
+    signals.push("Crowd-pressure model loaded");
+  }
+
+  if (has("peaceful") && (has("social") || has("adventure"))) {
+    signals.push("Low vibe alignment");
+  } else if (has("aesthetic") && has("low-crowds")) {
+    signals.push("Photographed-corridor overlap");
+  } else if (has("luxury") && trip.concern === "cost") {
+    signals.push("Budget-tier mismatch");
+  } else {
+    signals.push("Vibe-fit score below threshold");
+  }
+
+  const nights = nightsBetween(trip.startDate, trip.endDate);
+  if (nights <= 4) {
+    signals.push("Routing conflict: trip too short for single base");
+  } else if (nights >= 8) {
+    signals.push("Base-fatigue risk at current length");
+  } else {
+    signals.push("Routing conflict detected");
+  }
+
+  if (trip.concern === "weather") {
+    signals.push("Seasonal window under pressure");
+  } else if (trip.concern === "disappointment") {
+    signals.push("Expectation gap flagged");
+  } else {
+    signals.push("Hour-window pressure (10:30am–1pm)");
+  }
+
+  signals.push("Fix identified · confidence high");
+  return signals.slice(0, 5);
+}
+
+// Build 1–2 predictive, specific insights with numbers. Client-side fallback —
+// the model can replace these with something destination-tuned.
+function generatePredictiveInsights(trip) {
+  const dest = shortDestination(trip.destination);
+  const vibes = trip.vibes || [];
+  const mustHaves = trip.mustHaves || [];
+  const has = (x) => vibes.includes(x) || mustHaves.includes(x);
+  const d = dest || "this destination";
+
+  const insights = [];
+
+  // Crowd surge insight — near-universal
+  insights.push({
+    signal: `Peak crowd surge at the main sight begins ~10:30am`,
+    body: `Your default routing arrives between 11:15am and noon. Expect 3\u00d7 the wait you\u2019d have before 9:00am.`,
+  });
+
+  // Destination-shape insight, pick one
+  if (has("beach") || /amalfi|capri|cinque|positano|santorini|tulum|mykonos|ibiza|algarve|rio/i.test(d)) {
+    insights.push({
+      signal: `Ferry cadence collapses after 6:15pm`,
+      body: `Last reliable crossings leave before sunset. Two of your default evenings land after the last boat.`,
+    });
+  } else if (has("luxury") || trip.concern === "cost") {
+    insights.push({
+      signal: `Lodging price ceiling shifts +38% on your dates`,
+      body: `You\u2019re inside the destination\u2019s upper-pricing band. Moving arrival by 48 hours drops nightly rate materially.`,
+    });
+  } else if (/tokyo|paris|london|new york|rome/i.test(d)) {
+    insights.push({
+      signal: `Neighborhood transit compresses after 11:00pm`,
+      body: `Late-night returns from nightlife zones add 25\u201340 minutes each way. This erodes next-morning windows.`,
+    });
+  } else {
+    insights.push({
+      signal: `Booking window tightens 11\u201314 days out`,
+      body: `Your current dates hit the destination\u2019s last reliable release. Delay now and options narrow sharply.`,
+    });
+  }
+
+  return insights.slice(0, 2);
+}
+
+// Before vs After bullets — 3 paired items and 3 improvement chips.
+function generateBeforeAfter(trip) {
+  const dest = shortDestination(trip.destination);
+  const vibes = trip.vibes || [];
+  const mustHaves = trip.mustHaves || [];
+  const has = (x) => vibes.includes(x) || mustHaves.includes(x);
+
+  const before = [
+    `One base in ${dest}\u2019s busiest corridor`,
+    "Major sights hit during 10:30am\u20131pm crowd surge",
+    "Evenings pulled into the loudest stretch",
+    "No slack \u2014 one delay and the trip compresses",
+  ];
+  const after = [
+    `Two bases \u2014 quieter start, livelier second half`,
+    "Major sights done before 9am; afternoons protected",
+    "Evenings routed to calm adjacencies",
+    "One full day held open \u2014 trip absorbs a delay",
+  ];
+
+  const improves = [
+    "Crowd exposure \u2212 40%",
+    "Morning windows restored",
+    "One unplanned day protected",
+  ];
+  if (has("luxury") || trip.concern === "cost") {
+    improves[2] = "Budget stretch reduced";
+  }
+  if (has("beach") || has("peaceful")) {
+    improves[0] = "Crowd exposure \u2212 45%";
+  }
+
+  return { before, after, improves };
 }
 
 // ---------------------------- API call
@@ -301,12 +456,15 @@ function generateInstantResult(trip) {
 
   return {
     verdict: "Proceed with caution",
-    verdictUrgency: "You\u2019re close \u2014 but this setup works against you.",
+    verdictUrgency: "Your current plan works against you. We have the version that doesn\u2019t.",
     verdictOutcome,
     confidence: 78,
     biggestRisk,
     patternOpener: buildPatternOpener(trip),
     patternInsight: buildPatternInsight(trip),
+    diagnosticSignals: generateDiagnosticSignals(trip),
+    predictiveInsights: generatePredictiveInsights(trip),
+    beforeAfter: generateBeforeAfter(trip),
     why,
     risks: {
       crowdRisk: concern === "crowds" ? "High" : "Medium",
@@ -320,12 +478,12 @@ function generateInstantResult(trip) {
     betterVersionOutro:
       "This version delivers your goal: the trip you came for, without the friction.",
     personalizationCallback: "",
-    finalPlanLeadin: "If you book this version, here\u2019s how it plays out:",
+    finalPlanLeadin: "Book this version \u2014 here is how it plays out:",
     finalPlan,
     planTeaser,
     whyThisWorks:
       "you\u2019re separating calm and intensity \u2014 not forcing both into the same base.",
-    finalPlanOwnership: "",
+    finalPlanOwnership: "This is the version worth your credit card.",
     styleNote: `You\u2019re ${style} \u2014 but ${dest} punishes loose planning. Skip the early starts and the split, and the trip defaults to noise you\u2019ll forget by the flight home.`,
   };
 }
@@ -418,6 +576,70 @@ function renderResults(trip, r, opts = {}) {
   } else {
     patternEl.textContent = "";
     patternEl.hidden = true;
+  }
+
+  // diagnostic ribbon — persistent echo of the signals streamed pre-results
+  const ribbonList = document.getElementById("diagnosticRibbonList");
+  if (ribbonList) {
+    const ribbon = Array.isArray(r.diagnosticSignals) && r.diagnosticSignals.length
+      ? r.diagnosticSignals
+      : generateDiagnosticSignals(trip);
+    ribbonList.innerHTML = "";
+    ribbon.slice(0, 5).forEach((text) => {
+      const li = document.createElement("li");
+      li.className = "diagnostic-ribbon__item";
+      li.textContent = text;
+      ribbonList.appendChild(li);
+    });
+  }
+
+  // predictive insights — 1–2 specific, numbered observations
+  const predictiveList = document.getElementById("predictiveList");
+  if (predictiveList) {
+    const insights = Array.isArray(r.predictiveInsights) && r.predictiveInsights.length
+      ? r.predictiveInsights
+      : generatePredictiveInsights(trip);
+    predictiveList.innerHTML = "";
+    insights.slice(0, 2).forEach((ins) => {
+      const li = document.createElement("li");
+      li.className = "predictive__item";
+      const signal = document.createElement("p");
+      signal.className = "predictive__signal";
+      signal.textContent = ins.signal || "";
+      const body = document.createElement("p");
+      body.className = "predictive__body";
+      body.textContent = ins.body || "";
+      li.appendChild(signal);
+      li.appendChild(body);
+      predictiveList.appendChild(li);
+    });
+  }
+
+  // before vs after — current plan vs optimized plan, plus improvement chips
+  const beforeList = document.getElementById("beforeList");
+  const afterList = document.getElementById("afterList");
+  const improvesList = document.getElementById("beforeAfterImproves");
+  if (beforeList && afterList && improvesList) {
+    const ba = r.beforeAfter && typeof r.beforeAfter === "object"
+      ? r.beforeAfter
+      : generateBeforeAfter(trip);
+    const fillList = (el, items) => {
+      el.innerHTML = "";
+      (items || []).slice(0, 4).forEach((t) => {
+        const li = document.createElement("li");
+        li.textContent = t;
+        el.appendChild(li);
+      });
+    };
+    fillList(beforeList, ba.before);
+    fillList(afterList, ba.after);
+    improvesList.innerHTML = "";
+    (ba.improves || []).slice(0, 4).forEach((t) => {
+      const li = document.createElement("li");
+      li.className = "before-after__chip";
+      li.textContent = t;
+      improvesList.appendChild(li);
+    });
   }
 
   // why list
@@ -583,14 +805,11 @@ function renderResults(trip, r, opts = {}) {
 const planCta = document.getElementById("planCta");
 if (planCta) {
   planCta.addEventListener("click", () => {
-    planCta.disabled = true;
-    const label = planCta.querySelector(".cta__label");
-    const original = label ? label.textContent : "";
-    if (label) label.textContent = "Day-by-day planning is coming soon";
-    setTimeout(() => {
-      if (label && original) label.textContent = original;
-      planCta.disabled = false;
-    }, 2400);
+    // Smooth-scroll to the premium section — the place where the fix unlocks.
+    const premium = document.getElementById("premiumSection");
+    if (premium) {
+      premium.scrollIntoView({ behavior: "smooth", block: "start" });
+    }
   });
 }
 
@@ -605,7 +824,7 @@ if (savePlanBtn && savePanel) {
     if (isOpen) {
       savePanel.hidden = true;
       savePlanBtn.setAttribute("aria-expanded", "false");
-      savePlanBtn.textContent = "Save this plan";
+      savePlanBtn.textContent = "Save the fix";
     } else {
       savePanel.hidden = false;
       savePlanBtn.setAttribute("aria-expanded", "true");
@@ -644,7 +863,7 @@ function resetSavePanel() {
   }
   if (savePlanBtn) {
     savePlanBtn.setAttribute("aria-expanded", "false");
-    savePlanBtn.textContent = "Save this plan";
+    savePlanBtn.textContent = "Save the fix";
   }
 }
 
@@ -722,7 +941,7 @@ function verdictPhrase(key) {
 function defaultUrgency(key) {
   if (key === "proceed") return "We would book this trip.";
   if (key === "rethink") return "This trip, as planned, won\u2019t deliver what you want.";
-  return "You\u2019re close \u2014 but this setup works against you.";
+  return "Your current plan works against you. We have the version that doesn\u2019t.";
 }
 
 function normalizeLevel(v) {
