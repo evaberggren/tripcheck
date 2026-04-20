@@ -1,0 +1,13 @@
+[build]
+  publish = "."
+  functions = "netlify/functions"
+
+[build.environment]
+  CLOUDFLARE_API_TOKEN = "unconfigured"
+  CLOUDFLARE_ZONE_ID = "unconfigured"
+
+[[plugins]]
+  package = "netlify-plugin-cloudinary"
+  [plugins.inputs]
+    cloudName = "triplens"
+    deliveryType = "fetch"
