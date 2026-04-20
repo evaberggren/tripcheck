@@ -580,26 +580,16 @@ button {
   max-width: 62ch;
 }
 
-.entry__manifesto h2 {
-  font-family: var(--serif);
-  font-weight: 400;
-  font-style: italic;
-  font-size: 1.4rem;
-  margin: 0 0 0.75rem;
-  color: var(--ink);
-}
-
 .entry__manifesto p {
   margin: 0;
-  color: var(--ink-soft);
-  font-size: 1rem;
-  line-height: 1.6;
-}
-
-.entry__manifesto em {
   font-family: var(--serif);
   font-style: italic;
-  color: var(--ink);
+  font-weight: 300;
+  font-size: 1.18rem;
+  line-height: 1.5;
+  color: var(--ink-soft);
+  letter-spacing: -0.005em;
+  text-wrap: balance;
 }
 
 /* =============================== PROCESSING ================================ */

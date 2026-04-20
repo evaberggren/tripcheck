@@ -304,7 +304,7 @@ function renderResults(trip, r) {
   const outroText = (r.betterVersionOutro || "").toString().trim();
   betterOutro.textContent =
     outroText ||
-    "This version better matches your goal: calm, aesthetic, low-friction travel.";
+    "This version delivers your goal: calm, aesthetic, low-friction travel.";
 
   // style note
   document.getElementById("styleNote").textContent = r.styleNote || "";
