@@ -1316,13 +1316,13 @@ button {
 }
 
 .verdict__confidence {
-  display: inline-grid;
-  grid-template-columns: auto 160px auto;
+  display: flex;
+  flex-direction: column;
   align-items: center;
-  gap: 0.75rem;
-  font-size: 0.85rem;
-  color: var(--ink-muted);
-  opacity: 0.82;
+  gap: 0.6rem;
+  margin-left: auto;
+  margin-right: auto;
+  max-width: 44ch;
 }
 
 .verdict__confidence-label {
@@ -1333,6 +1333,7 @@ button {
 }
 
 .verdict__confidence-track {
+  width: 160px;
   height: 2px;
   background: rgba(28, 26, 23, 0.1);
   border-radius: 999px;
@@ -1346,13 +1347,17 @@ button {
   transition: width 1s var(--ease-out);
 }
 
-.verdict__confidence-value {
+.verdict__confidence-note {
+  margin: 0;
   font-family: var(--serif);
+  font-style: italic;
   font-weight: 400;
-  font-size: 0.98rem;
+  font-size: 0.96rem;
+  line-height: 1.4;
   color: var(--ink-muted);
-  min-width: 3ch;
-  text-align: right;
+  letter-spacing: -0.002em;
+  text-wrap: balance;
+  max-width: 40ch;
 }
 
 /* --- biggest risk --- */
@@ -3401,6 +3406,136 @@ body[data-shared="true"] .share {
   background: var(--ink);
   color: var(--paper);
   border-color: var(--ink);
+}
+
+/* =============================== CONSEQUENCE BLOCK ========================
+   "If you booked this as-is" — a tight, high-clarity consequence summary.
+   Editorial, divider-based. No icons, no colored warning panels.
+   =========================================================================== */
+
+.consequence {
+  padding: 2.25rem 0 2.25rem;
+  border-bottom: var(--rule);
+  max-width: 62ch;
+}
+
+.consequence__label {
+  margin: 0 0 1.25rem;
+  font-size: 0.72rem;
+  letter-spacing: 0.24em;
+  text-transform: uppercase;
+  color: var(--ink-muted);
+  font-weight: 600;
+}
+
+.consequence__list {
+  list-style: none;
+  margin: 0 0 1.25rem;
+  padding: 0;
+  display: flex;
+  flex-direction: column;
+  gap: 0.75rem;
+}
+
+.consequence__list li {
+  position: relative;
+  padding-left: 1.6rem;
+  font-family: var(--serif);
+  font-weight: 400;
+  font-size: 1.02rem;
+  line-height: 1.5;
+  color: var(--ink);
+  letter-spacing: -0.002em;
+  text-wrap: pretty;
+  max-width: 58ch;
+}
+
+.consequence__list li::before {
+  content: "\2014";
+  position: absolute;
+  left: 0;
+  color: var(--ink-muted);
+  font-weight: 400;
+}
+
+.consequence__net {
+  margin: 0;
+  padding-top: 1rem;
+  border-top: 1px solid rgba(28, 26, 23, 0.08);
+  font-family: var(--serif);
+  font-style: italic;
+  font-weight: 400;
+  font-size: 1.02rem;
+  line-height: 1.5;
+  color: var(--ink-soft);
+  letter-spacing: -0.002em;
+  text-wrap: pretty;
+  max-width: 58ch;
+}
+
+.consequence__net-label {
+  font-style: normal;
+  font-weight: 600;
+  letter-spacing: 0.14em;
+  text-transform: uppercase;
+  font-size: 0.7rem;
+  color: var(--sunset);
+  margin-right: 0.5rem;
+  vertical-align: 0.12em;
+}
+
+/* =============================== PREDICTIVE TEASER ========================
+   One line under the predictive cards. Acts as the paid teaser for Plan.
+   =========================================================================== */
+
+.predictive__teaser {
+  margin: 1.1rem 0 0;
+  padding-top: 0.85rem;
+  border-top: 1px solid rgba(28, 26, 23, 0.06);
+  max-width: 60ch;
+  font-family: var(--serif);
+  font-style: italic;
+  font-weight: 300;
+  font-size: 0.96rem;
+  line-height: 1.5;
+  color: var(--ink-muted);
+  letter-spacing: -0.002em;
+  text-wrap: pretty;
+}
+
+/* =============================== PREMIUM VALUE ANCHOR ======================
+   Single-line anchor above the pricing cards — makes the stakes concrete.
+   =========================================================================== */
+
+.premium__anchor {
+  margin: 0 0 1.75rem;
+  max-width: 54ch;
+  font-family: var(--serif);
+  font-weight: 400;
+  font-size: 1.05rem;
+  line-height: 1.5;
+  color: var(--ink);
+  letter-spacing: -0.002em;
+  border-left: 2px solid var(--sunset);
+  padding: 0.15rem 0 0.15rem 1.1rem;
+  text-wrap: pretty;
+}
+
+/* =============================== RETRY SUB ================================
+   Quiet second line under the main retry copy.
+   =========================================================================== */
+
+.retry__sub {
+  margin: -1rem 0 0;
+  font-family: var(--serif);
+  font-style: italic;
+  font-weight: 300;
+  font-size: 0.94rem;
+  line-height: 1.45;
+  color: var(--ink-faint);
+  letter-spacing: 0;
+  text-wrap: balance;
+  max-width: 48ch;
 }
 
 .premium-card--plus .premium-card__cta:hover {

@@ -312,6 +312,50 @@ function generateBeforeAfter(trip) {
   return { before, after, improves };
 }
 
+// Consequence block — "if you booked this as-is" (3 bullets + 1 net line)
+function generateConsequence(trip) {
+  const vibes = trip.vibes || [];
+  const mustHaves = trip.mustHaves || [];
+  const has = (x) => vibes.includes(x) || mustHaves.includes(x);
+
+  const bullets = [];
+
+  if (has("peaceful") || has("low-crowds") || trip.concern === "crowds") {
+    bullets.push("You\u2019d hit peak crowds during the hours that matter most.");
+  } else if (has("aesthetic")) {
+    bullets.push("You\u2019d land at the best views exactly when everyone else is photographing them.");
+  } else {
+    bullets.push("You\u2019d hit the sights at the loudest window of the day.");
+  }
+
+  bullets.push("Your movement days would compete with your best hours.");
+
+  if (has("aesthetic") || has("peaceful") || has("luxury")) {
+    bullets.push("The trip would deliver the postcard version, not the one you actually want.");
+  } else if (has("beach")) {
+    bullets.push("Your beach windows would collapse into the busiest stretch.");
+  } else if (trip.concern === "cost") {
+    bullets.push("You\u2019d spend in the generic tier \u2014 and feel none of the upgrade.");
+  } else {
+    bullets.push("The trip would deliver the default version, not the one you came for.");
+  }
+
+  const net = "You\u2019d experience this destination at the wrong rhythm.";
+  return { bullets: bullets.slice(0, 3), net };
+}
+
+// Confidence note — one clean sentence next to the bar
+function defaultConfidenceNote(verdictKey, conf) {
+  const rounded = Math.round(conf);
+  if (verdictKey === "proceed") {
+    return `Confidence: ${rounded}% this plan holds as-is`;
+  }
+  if (verdictKey === "rethink") {
+    return `Confidence: ${rounded}% this version underperforms`;
+  }
+  return `Confidence: ${rounded}% this version underperforms`;
+}
+
 // Core failure — 2–4 short bullets about what's structurally wrong
 function generateCoreFailure(trip) {
   const dest = shortDestination(trip.destination);
@@ -386,8 +430,6 @@ function generateInstantResult(trip) {
   const nights = nightsBetween(trip.startDate, trip.endDate);
   const dest = trip.destination || "this trip";
   const vibes = trip.vibes || [];
-  const style = trip.style || "balanced";
-  const concern = trip.concern || "crowds";
 
   const legANights = Math.max(1, Math.ceil(nights / 2));
   const legBNights = Math.max(1, nights - legANights);
@@ -407,14 +449,6 @@ function generateInstantResult(trip) {
   const verdictUrgency =
     urgencyByVibe[firstVibe] ||
     `As planned, this trip runs on the default tourist routing \u2014 not the one you came for.`;
-
-  const coreLedeByConcern = {
-    crowds: `Basing in ${dest}\u2019s busiest corridor puts the loudest stretch between you and what you came for.`,
-    weather: `Your dates land in ${dest}\u2019s worst weather window \u2014 and block the conditions you came for.`,
-    cost: `Your budget lands you in ${dest}\u2019s generic tier \u2014 the one spend that rarely pays off.`,
-    disappointment: `Running ${dest} from one base stretches the trip thin \u2014 the version you\u2019re imagining never lands.`,
-  };
-  const coreFailureLede = coreLedeByConcern[concern] || coreLedeByConcern.crowds;
 
   const coreFailureList = generateCoreFailure(trip);
 
@@ -466,8 +500,9 @@ function generateInstantResult(trip) {
     verdict: "Proceed with caution",
     verdictUrgency,
     confidence: 78,
+    confidenceNote: "",
     diagnosticSignals: generateDiagnosticSignals(trip),
-    coreFailureLede,
+    consequence: generateConsequence(trip),
     coreFailure: coreFailureList,
     predictiveInsights: generatePredictiveInsights(trip),
     beforeAfter: generateBeforeAfter(trip),
@@ -505,20 +540,40 @@ function renderResults(trip, r, opts = {}) {
 
   const conf = clamp(Number(r.confidence) || 0, 0, 100);
   document.getElementById("confidenceFill").style.width = `${conf}%`;
-  document.getElementById("confidenceValue").textContent = `${Math.round(conf)}%`;
-
-  // 2. core failure
-  const coreFailureLedeEl = document.getElementById("coreFailureLede");
-  const coreLede = (r.coreFailureLede || r.biggestRisk || "").toString().trim();
-  if (coreFailureLedeEl) {
-    if (coreLede) {
-      coreFailureLedeEl.textContent = coreLede;
-      coreFailureLedeEl.hidden = false;
-    } else {
-      coreFailureLedeEl.textContent = "";
-      coreFailureLedeEl.hidden = true;
-    }
+  const confidenceNoteEl = document.getElementById("confidenceNote");
+  if (confidenceNoteEl) {
+    const note = (r.confidenceNote || "").toString().trim() || defaultConfidenceNote(verdictKey, conf);
+    confidenceNoteEl.textContent = note;
   }
+
+  // 1b. consequence — "if you booked this as-is"
+  const consequenceList = document.getElementById("consequenceList");
+  const consequenceNetEl = document.getElementById("consequenceNet");
+  const consequenceSection = document.getElementById("consequenceSection");
+  if (consequenceList && consequenceNetEl && consequenceSection) {
+    const cons = (r.consequence && typeof r.consequence === "object")
+      ? r.consequence
+      : generateConsequence(trip);
+    const bullets = Array.isArray(cons.bullets) && cons.bullets.length
+      ? cons.bullets
+      : generateConsequence(trip).bullets;
+    consequenceList.innerHTML = "";
+    bullets.slice(0, 3).forEach((line) => {
+      const li = document.createElement("li");
+      li.textContent = line;
+      consequenceList.appendChild(li);
+    });
+    const netText = (cons.net || "").toString().trim()
+      || "You\u2019d experience this destination at the wrong rhythm.";
+    consequenceNetEl.innerHTML = "";
+    const netLabel = document.createElement("span");
+    netLabel.className = "consequence__net-label";
+    netLabel.textContent = "Net";
+    consequenceNetEl.appendChild(netLabel);
+    consequenceNetEl.appendChild(document.createTextNode(netText));
+  }
+
+  // 2. core failure — static pull-quote, dynamic bullets
   const coreFailureList = document.getElementById("coreFailureList");
   if (coreFailureList) {
     coreFailureList.innerHTML = "";
@@ -838,9 +893,9 @@ function buildPersonalizationCallback(trip, serverText) {
   const inputs = describeTripInputs(trip);
   const joined = joinDescriptors(inputs);
   if (!joined) {
-    return "You want the version that actually works. Your current plan isn\u2019t it. This one is.";
+    return "You want the version that actually works. Your current plan delivers the lunch-rush version of the destination. This one does not.";
   }
-  return `You want ${joined}. Your current plan delivers the opposite. This one does.`;
+  return `You want ${joined}. Your current plan delivers the lunch-rush version of the destination. This one does not.`;
 }
 
 function shortDestination(dest) {
