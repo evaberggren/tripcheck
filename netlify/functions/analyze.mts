@@ -35,7 +35,7 @@ function buildUserPrompt(trip: Trip) {
   );
   const perNight = trip.budget && nights ? Math.round(trip.budget / nights) : null;
 
-  return `Assess this trip and produce a TripLens diagnosis + prescription.
+  return `Assess this trip and produce a TripLens diagnosis + prescription + final plan.
 
 Trip:
 - Destination: ${trip.destination}
@@ -52,7 +52,8 @@ Return a single JSON object with EXACTLY these keys:
 
 {
   "verdict": "Proceed" | "Proceed with caution" | "Rethink this trip",
-  "verdictSummary": "ONE short declarative sentence naming the core tension. 10–14 words. Use 'will' not 'may'. Example shape: 'You're forcing a peaceful trip into a higher-energy destination.' No hedging.",
+  "verdictPosition": "ONE definitive sentence stating your book/don't-book position. Use EXACTLY one of these three shapes, chosen to match the verdict: for 'Proceed' use 'We would book this trip.'; for 'Proceed with caution' use 'We would book this — with the changes below.'; for 'Rethink this trip' use 'We would not book this trip as planned.' No hedging. No variations.",
+  "verdictOutcome": "ONE short declarative outcome sentence naming what this trip will FEEL like as planned. 10–14 words. Begin with 'As planned,' and use 'will' not 'may'. Name the emotional consequence, not the tension. Example shape: 'As planned, this trip will feel crowded instead of calm.'",
   "confidence": integer 0–100,
   "biggestRisk": "ONE short punchy sentence stating what will happen, not what might. Max 12 words. Use 'will', not 'could'. Example shape: 'This will feel busier and louder than you want.'",
   "why": [
@@ -78,6 +79,15 @@ Return a single JSON object with EXACTLY these keys:
     }
   ],
   "betterVersionOutro": "ONE closing sentence beneath the alternatives. Starts with 'This version delivers your goal:' and names the traveler's actual vibes in their own words (drawn from Desired vibes). Under 18 words.",
+  "finalPlan": [
+    {
+      "days": "ONE short day-range label for this leg. Shape: 'Days 1–4', 'Days 5–9'. Must cover contiguous days starting at Day 1. Across all legs the total must equal the trip length (${nights} nights).",
+      "location": "ONE specific location with a neighborhood or base when helpful. 3–8 words. Shape examples: 'Rio (Leblon)', 'Paraty', 'Lisbon (Príncipe Real)'.",
+      "rules": [
+        "2–3 behavioral rules for this location. Each is ONE imperative line under 9 words. Shape examples: 'Do major sights before 9am', 'Avoid beaches on weekends', 'Stay in historic center', 'Plan one boat day'. No generic filler. Tailored to this location's real dynamics."
+      ]
+    }
+  ],
   "styleNote": "EXACTLY two short lines, separated by a single newline. Line 1 names the tension between the traveler's style (${trip.style}) and this specific trip — shape: 'You're a ${trip.style}—but this trip rewards planning.' Line 2 states the concrete consequence declaratively — shape: 'Wing it and you'll miss the quiet coves and overpay for the busy ones.' No third line. Each line under 18 words."
 }
 
@@ -85,11 +95,13 @@ Critical rules:
 - Output ONLY the JSON object. No prose, no markdown fencing.
 - Decisive voice throughout. Use "will" not "may", imperatives not suggestions. Ban the words: consider, try, think about, you could, might, should probably, perhaps, it's worth, may want to.
 - Every line must be scannable in under two seconds. Cut filler, adjectives, wind-up.
-- "verdictSummary" is an emotional one-liner diagnosis, not a restatement of the verdict word.
+- "verdictPosition" is a definitive book/don't-book statement. Use one of the three exact shapes above — match the verdict.
+- "verdictOutcome" must begin with "As planned," and name the FEELING of the trip as planned.
 - "biggestRisk" must name what will happen, not what could.
 - "why" MUST be 3–4 bullets. Each is a single line.
 - "howToFix" MUST have 3 to 5 items. Each step is specific and executable: name concrete places, neighborhoods, months, hours, or numbers. Include "detail" only when it adds something the title cannot carry alone.
 - "betterVersion" MUST have 1 to 2 items. Tight and curated.
+- "finalPlan" MUST be 2 to 4 legs. Together the day ranges must cover the full trip length (${nights} nights) without overlap or gaps, starting at Day 1. Each leg has 2–3 behavioral rules specific to that location — not generic "book early" filler. Reflect the prescribed upgrades (better neighborhoods, splits, timing) rather than the user's original plan.
 - "styleNote" must be exactly two lines.
 - Risks are five fields even though the UI surfaces four; always return all five.
 - No itineraries. No hotel names. No restaurant names. No maps. No booking links. No URLs. No emoji. No apps or tools. (Neighborhoods, landmarks, and regions ARE allowed and encouraged for specificity.)
@@ -125,7 +137,7 @@ export default async (req: Request, _context: Context) => {
   try {
     const message = await anthropic.messages.create({
       model: "claude-opus-4-7",
-      max_tokens: 3000,
+      max_tokens: 3600,
       system: SYSTEM_PROMPT,
       messages: [{ role: "user", content: buildUserPrompt(trip) }],
     });

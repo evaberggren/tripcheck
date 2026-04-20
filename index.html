@@ -193,8 +193,11 @@
         <article class="verdict" id="verdictCard">
           <p class="verdict__label">TripLens verdict</p>
           <h3 class="verdict__headline" id="verdictHeadline">Proceed with caution</h3>
-          <p class="verdict__summary" id="verdictSummary">
-            You’re forcing a peaceful trip into a higher-energy destination.
+          <p class="verdict__position" id="verdictPosition">
+            We would book this — with the changes below.
+          </p>
+          <p class="verdict__outcome" id="verdictOutcome">
+            As planned, this trip will feel crowded instead of calm.
           </p>
           <div class="verdict__confidence">
             <span class="verdict__confidence-label">Confidence</span>
@@ -242,6 +245,15 @@
           </p>
         </article>
 
+        <!-- 5b. Book this version instead — final plan -->
+        <article class="final-plan" id="finalPlanSection">
+          <p class="final-plan__eyebrow">The final plan</p>
+          <h4 class="section-title">Book this version instead</h4>
+          <ol class="final-plan__list" id="finalPlanList">
+            <!-- days injected -->
+          </ol>
+        </article>
+
         <!-- 6. Risk breakdown -->
         <article class="risks">
           <h4 class="section-title">Risk breakdown</h4>
@@ -259,19 +271,17 @@
           </p>
         </article>
 
-        <!-- 8. Retry / next actions -->
-        <footer class="iterate">
-          <p class="iterate__label">Not the answer you wanted? Change a variable.</p>
-          <div class="iterate__buttons">
-            <button type="button" class="ghost-btn" data-iterate="dates">Different dates</button>
-            <button type="button" class="ghost-btn" data-iterate="destination">
-              A different destination
-            </button>
-            <button type="button" class="ghost-btn" data-iterate="budget">A new budget</button>
-            <button type="button" class="ghost-btn ghost-btn--primary" data-iterate="reset">
-              Start over
-            </button>
-          </div>
+        <!-- 8. Single continuation CTA -->
+        <footer class="continue">
+          <button type="button" class="cta continue__cta" id="continueCta">
+            <span class="cta__label">Turn this into a day-by-day plan</span>
+            <svg class="cta__arrow" viewBox="0 0 24 24" aria-hidden="true">
+              <path d="M4 12h15m0 0-5.5-5.5M19 12l-5.5 5.5" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"></path>
+            </svg>
+          </button>
+          <button type="button" class="continue__reset" data-iterate="reset">
+            Start over with different inputs
+          </button>
         </footer>
       </section>
     </main>

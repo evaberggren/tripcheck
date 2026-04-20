@@ -13,9 +13,6 @@ const analyzeBtn = document.getElementById("analyzeBtn");
 const yearEl = document.getElementById("year");
 yearEl.textContent = new Date().getFullYear();
 
-// Remember the last submitted trip so "try different dates" etc. can prefill
-let lastTrip = null;
-
 // ------------------------------- view switching
 
 function showView(name) {
@@ -82,7 +79,6 @@ form.addEventListener("submit", async (e) => {
     errorEl.hidden = false;
     return;
   }
-  lastTrip = trip;
 
   analyzeBtn.disabled = true;
   showView("processing");
@@ -197,14 +193,19 @@ function renderResults(trip, r) {
   const verdictKey = normalizeVerdict(r.verdict);
   verdictCard.dataset.verdict = verdictKey;
   document.getElementById("verdictHeadline").textContent = verdictPhrase(verdictKey);
-  const verdictSummaryEl = document.getElementById("verdictSummary");
-  const verdictSummary = (r.verdictSummary || "").toString().trim();
-  if (verdictSummary) {
-    verdictSummaryEl.textContent = verdictSummary;
-    verdictSummaryEl.hidden = false;
+
+  const verdictPositionEl = document.getElementById("verdictPosition");
+  const verdictPosition = (r.verdictPosition || "").toString().trim() || defaultPosition(verdictKey);
+  verdictPositionEl.textContent = verdictPosition;
+
+  const verdictOutcomeEl = document.getElementById("verdictOutcome");
+  const verdictOutcome = (r.verdictOutcome || r.verdictSummary || "").toString().trim();
+  if (verdictOutcome) {
+    verdictOutcomeEl.textContent = verdictOutcome;
+    verdictOutcomeEl.hidden = false;
   } else {
-    verdictSummaryEl.textContent = "";
-    verdictSummaryEl.hidden = true;
+    verdictOutcomeEl.textContent = "";
+    verdictOutcomeEl.hidden = true;
   }
 
   const conf = clamp(Number(r.confidence) || 0, 0, 100);
@@ -306,75 +307,74 @@ function renderResults(trip, r) {
     outroText ||
     "This version delivers your goal: calm, aesthetic, low-friction travel.";
 
+  // final plan — "Book this version instead" (day-grouped legs)
+  const finalPlanSection = document.getElementById("finalPlanSection");
+  const finalPlanList = document.getElementById("finalPlanList");
+  finalPlanList.innerHTML = "";
+  const finalPlan = Array.isArray(r.finalPlan) ? r.finalPlan.slice(0, 4) : [];
+  if (finalPlan.length) {
+    finalPlan.forEach((leg) => {
+      const item = document.createElement("li");
+      item.className = "final-plan__item";
+
+      const days = document.createElement("p");
+      days.className = "final-plan__days";
+      days.textContent = leg.days || "";
+      item.appendChild(days);
+
+      const location = document.createElement("h5");
+      location.className = "final-plan__location";
+      location.textContent = leg.location || "";
+      item.appendChild(location);
+
+      const rules = document.createElement("ul");
+      rules.className = "final-plan__rules";
+      (leg.rules || []).slice(0, 3).forEach((rule) => {
+        const li = document.createElement("li");
+        li.textContent = rule;
+        rules.appendChild(li);
+      });
+      item.appendChild(rules);
+
+      finalPlanList.appendChild(item);
+    });
+    finalPlanSection.hidden = false;
+  } else {
+    finalPlanSection.hidden = true;
+  }
+
   // style note
   document.getElementById("styleNote").textContent = r.styleNote || "";
 }
 
-// ---------------------------- iterate buttons
+// ---------------------------- continue CTA + reset
 
-document.querySelector(".iterate__buttons").addEventListener("click", (e) => {
-  const btn = e.target.closest("[data-iterate]");
-  if (!btn) return;
-  const action = btn.dataset.iterate;
-  showView("entry");
-  // restore last trip so tweaks are easy
-  if (lastTrip) {
-    restoreTrip(lastTrip);
-    if (action === "dates") {
-      setTimeout(() => form.elements["startDate"].focus(), 250);
-    } else if (action === "destination") {
-      form.elements["destination"].value = "";
-      setTimeout(() => form.elements["destination"].focus(), 250);
-    } else if (action === "budget") {
-      setTimeout(() => form.elements["budget"].focus(), 250);
-    } else if (action === "reset") {
-      form.reset();
-      document
-        .querySelectorAll(".chip[data-disabled]")
-        .forEach((el) => el.removeAttribute("data-disabled"));
-      document
-        .querySelectorAll(".chip input, .radio input")
-        .forEach((i) => (i.checked = false));
-      lastTrip = null;
-    }
-  }
-});
-
-function restoreTrip(t) {
-  form.elements["destination"].value = t.destination || "";
-  form.elements["origin"].value = t.origin || "";
-  form.elements["startDate"].value = t.startDate || "";
-  form.elements["endDate"].value = t.endDate || "";
-  form.elements["travelers"].value = t.travelers || 2;
-  form.elements["budget"].value = t.budget || "";
-
-  // reset chips
-  form.querySelectorAll(".chip input, .radio input").forEach((i) => (i.checked = false));
-  (t.vibes || []).forEach((v) => {
-    const i = form.querySelector(
-      `.chips[data-name="vibes"] input[value="${CSS.escape(v)}"]`,
-    );
-    if (i) i.checked = true;
+const continueCta = document.getElementById("continueCta");
+if (continueCta) {
+  continueCta.addEventListener("click", () => {
+    continueCta.disabled = true;
+    const label = continueCta.querySelector(".cta__label");
+    const original = label ? label.textContent : "";
+    if (label) label.textContent = "Day-by-day planning is coming soon";
+    setTimeout(() => {
+      if (label && original) label.textContent = original;
+      continueCta.disabled = false;
+    }, 2400);
   });
-  (t.mustHaves || []).forEach((v) => {
-    const i = form.querySelector(
-      `.chips[data-name="mustHaves"] input[value="${CSS.escape(v)}"]`,
-    );
-    if (i) i.checked = true;
-  });
-  if (t.concern) {
-    const c = form.querySelector(
-      `input[name="concern"][value="${CSS.escape(t.concern)}"]`,
-    );
-    if (c) c.checked = true;
-  }
-  if (t.style) {
-    const s = form.querySelector(
-      `input[name="style"][value="${CSS.escape(t.style)}"]`,
-    );
-    if (s) s.checked = true;
-  }
 }
+
+document.querySelectorAll('[data-iterate="reset"]').forEach((btn) => {
+  btn.addEventListener("click", () => {
+    showView("entry");
+    form.reset();
+    document
+      .querySelectorAll(".chip[data-disabled]")
+      .forEach((el) => el.removeAttribute("data-disabled"));
+    document
+      .querySelectorAll(".chip input, .radio input")
+      .forEach((i) => (i.checked = false));
+  });
+});
 
 // ---------------------------- helpers
 
@@ -408,6 +408,12 @@ function verdictPhrase(key) {
   if (key === "proceed") return "Proceed";
   if (key === "rethink") return "Rethink this trip";
   return "Proceed with caution";
+}
+
+function defaultPosition(key) {
+  if (key === "proceed") return "We would book this trip.";
+  if (key === "rethink") return "We would not book this trip as planned.";
+  return "We would book this — with the changes below.";
 }
 
 function normalizeLevel(v) {
