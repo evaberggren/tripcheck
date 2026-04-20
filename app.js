@@ -1,15 +1,17 @@
 // TripLens — client flow
-// Entry → processing → results. One page, three views.
+// Entry → results (instant). A subtle overlay acknowledges the analysis
+// without blocking the page; the API call updates the results silently
+// once it returns.
 
 const views = {
   entry: document.querySelector('[data-view="entry"]'),
-  processing: document.querySelector('[data-view="processing"]'),
   results: document.querySelector('[data-view="results"]'),
 };
 
 const form = document.getElementById("intakeForm");
 const errorEl = document.getElementById("intakeError");
 const analyzeBtn = document.getElementById("analyzeBtn");
+const analyzingOverlay = document.getElementById("analyzingOverlay");
 const yearEl = document.getElementById("year");
 yearEl.textContent = new Date().getFullYear();
 
@@ -17,6 +19,7 @@ yearEl.textContent = new Date().getFullYear();
 
 function showView(name) {
   for (const [key, el] of Object.entries(views)) {
+    if (!el) continue;
     if (key === name) {
       el.hidden = false;
       el.style.animation = "none";
@@ -66,7 +69,7 @@ if (vibesGroup) {
   end.min = fmt(today);
 })();
 
-// ---------------------------- form submission
+// ---------------------------- form submission (instant transition)
 
 form.addEventListener("submit", async (e) => {
   e.preventDefault();
@@ -81,24 +84,31 @@ form.addEventListener("submit", async (e) => {
   }
 
   analyzeBtn.disabled = true;
-  showView("processing");
-  runProcessingAnimation();
 
-  try {
-    const result = await analyzeTrip(trip);
-    // ensure processing pace feels deliberate, not instant
-    await minDelay(2600);
-    renderResults(trip, result);
-    showView("results");
-  } catch (err) {
-    console.error(err);
-    errorEl.textContent =
-      "Something interrupted the analysis. Please try again in a moment.";
-    errorEl.hidden = false;
-    showView("entry");
-  } finally {
-    analyzeBtn.disabled = false;
-  }
+  // 1. Generate instant results from the user's inputs and render them.
+  const instant = generateInstantResult(trip);
+  renderResults(trip, instant);
+
+  // 2. Swap view immediately — no processing gate.
+  showView("results");
+
+  // 3. Subtle non-blocking overlay: fades in, lingers briefly, fades out.
+  flashAnalyzingOverlay();
+
+  // 4. Fire the real analysis in the background and swap in silently.
+  analyzeTrip(trip)
+    .then((real) => {
+      if (real && typeof real === "object") {
+        renderResults(trip, real, { silent: true });
+      }
+    })
+    .catch((err) => {
+      // Silent failure — instant results are already on screen.
+      console.warn("Background analysis failed; keeping instant results.", err);
+    })
+    .finally(() => {
+      analyzeBtn.disabled = false;
+    });
 });
 
 function collectTrip(form) {
@@ -141,27 +151,21 @@ function validate(t) {
   return null;
 }
 
-// ---------------------------- processing animation
+// ---------------------------- non-blocking analyzing overlay
 
-function runProcessingAnimation() {
-  const items = [...document.querySelectorAll("#processingSteps [data-step]")];
-  items.forEach((li) => li.removeAttribute("data-state"));
-  let idx = 0;
-  items[0]?.setAttribute("data-state", "active");
-  const timers = [];
-  const advance = () => {
-    if (idx < items.length) items[idx].setAttribute("data-state", "done");
-    idx += 1;
-    if (idx < items.length) {
-      items[idx].setAttribute("data-state", "active");
-      timers.push(setTimeout(advance, 650 + Math.random() * 250));
-    }
-  };
-  timers.push(setTimeout(advance, 700));
-}
-
-function minDelay(ms) {
-  return new Promise((r) => setTimeout(r, ms));
+function flashAnalyzingOverlay() {
+  if (!analyzingOverlay) return;
+  analyzingOverlay.hidden = false;
+  analyzingOverlay.dataset.state = "in";
+  // After ~1.5s, begin fade-out.
+  setTimeout(() => {
+    analyzingOverlay.dataset.state = "out";
+  }, 1500);
+  // Hide fully after the fade-out completes.
+  setTimeout(() => {
+    analyzingOverlay.dataset.state = "";
+    analyzingOverlay.hidden = true;
+  }, 2400);
 }
 
 // ---------------------------- API call
@@ -179,9 +183,148 @@ async function analyzeTrip(trip) {
   return res.json();
 }
 
+// ---------------------------- instant mock generator
+// Produces a plausible, destination-aware result from the user's inputs
+// the moment they click "Analyze my trip". The background API call will
+// replace this with a real analysis as soon as it returns.
+
+function generateInstantResult(trip) {
+  const nights = nightsBetween(trip.startDate, trip.endDate);
+  const dest = trip.destination || "this trip";
+  const vibes = trip.vibes || [];
+  const mustHaves = trip.mustHaves || [];
+  const style = trip.style || "balanced";
+  const concern = trip.concern || "crowds";
+
+  const legANights = Math.max(1, Math.ceil(nights / 2));
+  const legBNights = Math.max(1, nights - legANights);
+  const legADays = `Days 1\u2013${legANights}`;
+  const legBDays = nights > legANights
+    ? `Days ${legANights + 1}\u2013${nights}`
+    : "";
+
+  const outcomeByVibe = {
+    peaceful: `As planned, this trip will feel crowded instead of calm.`,
+    luxury: `As planned, this trip will feel generic instead of elevated.`,
+    aesthetic: `As planned, this trip will feel ordinary instead of photogenic.`,
+    adventure: `As planned, this trip will feel padded instead of adventurous.`,
+    social: `As planned, this trip will feel quiet instead of social.`,
+  };
+  const firstVibe = vibes[0];
+  const verdictOutcome =
+    outcomeByVibe[firstVibe] ||
+    `As planned, this trip will feel busier than what you\u2019re hoping for.`;
+
+  const biggestRiskByConcern = {
+    crowds: `Basing in one high-traffic area of ${dest} puts you in constant noise \u2014 and blocks the calm you actually want.`,
+    weather: `Your dates land inside ${dest}\u2019s worst weather window \u2014 and block the conditions you came for.`,
+    cost: `Your current budget puts you in ${dest}\u2019s most generic layer \u2014 and blocks the quality you actually want.`,
+    disappointment: `Your current routing stretches ${dest} across one base \u2014 and blocks the trip you\u2019re imagining.`,
+  };
+  const biggestRisk = biggestRiskByConcern[concern] || biggestRiskByConcern.crowds;
+
+  const why = [
+    `Your dates put ${dest} inside its busiest visitor window`,
+    `One base won\u2019t deliver the variety this destination needs`,
+    `Your vibes lean ${vibes[0] || "calm"}; default routing runs the other way`,
+    `Without early starts, the best hours are already gone`,
+  ];
+
+  const howToFix = [
+    {
+      title: `Shift your base to a quieter side of ${dest}`,
+      detail: "Single highest-leverage move \u2014 it changes the texture of every day.",
+    },
+    {
+      title: "Do the major sights before 9am, not midday",
+      detail: "Morning windows are 60\u201370% less crowded and set the whole day's pace.",
+    },
+    {
+      title: `Split ${dest} into two bases instead of one`,
+      detail: "Separates the calm from the intensity \u2014 both work better alone.",
+    },
+    {
+      title: "Keep one full day unplanned",
+      detail: "Unplanned slack is where the memorable moments actually land.",
+    },
+  ];
+
+  const betterVersion = [
+    {
+      name: `${dest}, split across two bases`,
+      pitch: `A quieter base first, then the city \u2014 same length, less friction.`,
+    },
+  ];
+
+  const planTeaser = [
+    `Day 1: Arrive in ${dest}, settle into the quieter base, easy sunset`,
+    `Day 2: Major sights early, slow afternoon back at base`,
+    `Day 3: Shift bases, start the second half at a different pace`,
+  ];
+
+  const finalPlan = [
+    {
+      days: legADays,
+      location: `${dest} \u2014 quieter base`,
+      rules: [
+        "Do major sights before 9am",
+        "Stay close to where you sleep after 5pm",
+        "Keep one evening completely open",
+      ],
+    },
+  ];
+  if (legBDays) {
+    finalPlan.push({
+      days: legBDays,
+      location: `${dest} \u2014 second base`,
+      rules: [
+        "Walk the neighborhood before booking anything",
+        "Plan one full day outside the center",
+        "Eat where locals eat late",
+      ],
+    });
+  }
+
+  return {
+    verdict: "Proceed with caution",
+    verdictPosition: "We would book this \u2014 with the changes below.",
+    verdictUrgency: "This trip needs 2\u20133 key changes to actually work.",
+    verdictOutcome,
+    confidence: 78,
+    biggestRisk,
+    patternInsight:
+      "Most travelers get this wrong by trying to do everything from one base.",
+    why,
+    risks: {
+      crowdRisk: concern === "crowds" ? "High" : "Medium",
+      weatherRisk: concern === "weather" ? "High" : "Medium",
+      budgetStretch: concern === "cost" ? "High" : "Medium",
+      vibeMismatch: mustHaves.length >= 3 ? "High" : "Medium",
+      logisticsFriction: "Medium",
+    },
+    howToFix,
+    betterVersion,
+    betterVersionOutro:
+      "This version delivers your goal: the trip you actually came for, without the friction.",
+    personalizationCallback: "",
+    finalPlan,
+    planTeaser,
+    whyThisWorks:
+      "you\u2019re separating calm and intensity instead of forcing both into one rhythm.",
+    finalPlanOwnership: "",
+    styleNote: `You\u2019re ${style} \u2014 but ${dest} punishes loose planning. Without early starts and a split, the trip defaults to crowded and forgettable.`,
+  };
+}
+
 // ---------------------------- results rendering
 
-function renderResults(trip, r) {
+function renderResults(trip, r, opts = {}) {
+  const silent = opts.silent === true;
+  const view = views.results;
+  if (view) {
+    view.dataset.stage = silent ? "settled" : "entering";
+  }
+
   // tripline
   const nights = nightsBetween(trip.startDate, trip.endDate);
   const arriveLabel = formatDate(trip.startDate);

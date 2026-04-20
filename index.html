@@ -28,6 +28,13 @@
       </nav>
     </header>
 
+    <!-- Non-blocking analyzing overlay. Fades in briefly after submit, then
+         fades out. Never gates interaction; never delays rendering. -->
+    <div class="analyzing-overlay" id="analyzingOverlay" role="status" aria-live="polite" hidden="">
+      <span class="analyzing-overlay__dot" aria-hidden="true"></span>
+      <span class="analyzing-overlay__label">Analyzing your trip…</span>
+    </div>
+
     <main id="app" class="app">
       <!-- ============================== ENTRY SCREEN ============================== -->
       <section class="view view--entry" data-view="entry" aria-labelledby="entry-heading">
@@ -157,27 +164,6 @@
             you’re hoping for — before you book it.
           </p>
         </footer>
-      </section>
-
-      <!-- ============================ PROCESSING SCREEN ============================ -->
-      <section class="view view--processing" data-view="processing" aria-labelledby="processing-heading" hidden="">
-        <div class="processing__stage">
-          <div class="processing__orb" aria-hidden="true">
-            <div class="processing__orb-core"></div>
-            <div class="processing__orb-ring processing__orb-ring--a"></div>
-            <div class="processing__orb-ring processing__orb-ring--b"></div>
-          </div>
-          <p class="processing__kicker">Examining</p>
-          <h2 id="processing-heading" class="processing__headline">
-            Testing this trip against what you actually want.
-          </h2>
-          <ul class="processing__steps" id="processingSteps">
-            <li data-step="">Measuring crowd pressure</li>
-            <li data-step="">Checking timing &amp; season</li>
-            <li data-step="">Scoring vibe match</li>
-            <li data-step="">Flagging hidden risks</li>
-          </ul>
-        </div>
       </section>
 
       <!-- ============================== RESULTS SCREEN ============================== -->
