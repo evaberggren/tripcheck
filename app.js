@@ -15,6 +15,12 @@ const analyzingOverlay = document.getElementById("analyzingOverlay");
 const yearEl = document.getElementById("year");
 yearEl.textContent = new Date().getFullYear();
 
+// ------------------------------- state tracked for share
+let latestTrip = null;
+let latestResult = null;
+let latestShareId = null;
+let sharedViewActive = false;
+
 // ------------------------------- view switching
 
 function showView(name) {
@@ -87,6 +93,10 @@ form.addEventListener("submit", async (e) => {
 
   // 1. Generate instant results from the user's inputs and render them.
   const instant = generateInstantResult(trip);
+  latestTrip = trip;
+  latestResult = instant;
+  latestShareId = null;
+  resetShareState();
   renderResults(trip, instant);
 
   // 2. Swap view immediately — no processing gate.
@@ -99,6 +109,9 @@ form.addEventListener("submit", async (e) => {
   analyzeTrip(trip)
     .then((real) => {
       if (real && typeof real === "object") {
+        latestResult = real;
+        latestShareId = null;
+        resetShareState();
         renderResults(trip, real, { silent: true });
       }
     })
@@ -292,8 +305,7 @@ function generateInstantResult(trip) {
     verdictOutcome,
     confidence: 78,
     biggestRisk,
-    patternInsight:
-      "Most travelers get this wrong by trying to do everything from one base.",
+    patternInsight: buildPatternInsight(trip),
     why,
     risks: {
       crowdRisk: concern === "crowds" ? "High" : "Medium",
@@ -774,3 +786,290 @@ function escapeHtml(s) {
     .replace(/"/g, "&quot;")
     .replace(/'/g, "&#39;");
 }
+
+// ---------------------------- pattern insight (client-side)
+// Produces a short, slightly unexpected observation keyed off the user's
+// own inputs. Meant to create the "oh wow, that's true" moment in the
+// instant result — the background API can still replace this with a
+// destination-specific model insight.
+
+function buildPatternInsight(trip) {
+  const vibes = trip.vibes || [];
+  const mustHaves = trip.mustHaves || [];
+  const has = (x) => vibes.includes(x) || mustHaves.includes(x);
+
+  if (has("peaceful") && has("social")) {
+    return "Most people get this wrong by trying to force calm and nightlife into the same base.";
+  }
+  if (has("peaceful") && has("beach")) {
+    return "You picked peaceful, but the default routing puts you in the busiest beach zone.";
+  }
+  if (has("aesthetic") && has("low-crowds")) {
+    return "The spots that photograph best are the ones everyone else already found.";
+  }
+  if (has("luxury") && has("adventure")) {
+    return "Luxury and adventure pull in opposite directions — one base almost always sacrifices one.";
+  }
+  if (has("adventure") && has("walkable")) {
+    return "Walkable bases feel calm — but quietly cut off the trips you actually came for.";
+  }
+  if (trip.concern === "cost" && has("luxury")) {
+    return "Your budget lands in the most generic tier — the one spend that rarely pays off.";
+  }
+  if (trip.concern === "crowds") {
+    return "Your dates are fine — it’s your setup that puts you inside the crowd.";
+  }
+  if (trip.concern === "weather") {
+    return "Most people miss that the weather risk here is the routing, not the season.";
+  }
+  if (trip.concern === "disappointment") {
+    return "The disappointment almost always comes from one base, not from the destination.";
+  }
+  return "Most people get this wrong by trying to do everything from one base.";
+}
+
+// ---------------------------- presets (quick-start trips)
+
+const PRESETS = {
+  amalfi: {
+    destination: "Amalfi Coast, Italy",
+    origin: "New York, NY",
+    nightsFromNow: { arrive: 45, depart: 51 },
+    travelers: 2,
+    budget: 5800,
+    vibes: ["aesthetic", "peaceful"],
+    mustHaves: ["good-food", "low-crowds"],
+    concern: "crowds",
+    style: "balanced",
+  },
+  tulum: {
+    destination: "Tulum, Mexico",
+    origin: "Chicago, IL",
+    nightsFromNow: { arrive: 35, depart: 41 },
+    travelers: 2,
+    budget: 3800,
+    vibes: ["peaceful", "aesthetic"],
+    mustHaves: ["beach", "luxury-hotel"],
+    concern: "disappointment",
+    style: "wanderer",
+  },
+  tokyo: {
+    destination: "Tokyo, Japan",
+    origin: "Los Angeles, CA",
+    nightsFromNow: { arrive: 60, depart: 67 },
+    travelers: 2,
+    budget: 6200,
+    vibes: ["adventure", "aesthetic"],
+    mustHaves: ["walkable", "good-food"],
+    concern: "disappointment",
+    style: "planner",
+  },
+  paris: {
+    destination: "Paris, France",
+    origin: "Boston, MA",
+    nightsFromNow: { arrive: 30, depart: 35 },
+    travelers: 2,
+    budget: 4600,
+    vibes: ["aesthetic", "luxury"],
+    mustHaves: ["walkable", "good-food"],
+    concern: "crowds",
+    style: "balanced",
+  },
+  rio: {
+    destination: "Rio de Janeiro, Brazil",
+    origin: "Miami, FL",
+    nightsFromNow: { arrive: 40, depart: 47 },
+    travelers: 2,
+    budget: 4200,
+    vibes: ["social", "adventure"],
+    mustHaves: ["beach"],
+    concern: "disappointment",
+    style: "wanderer",
+  },
+};
+
+function applyPreset(key) {
+  const preset = PRESETS[key];
+  if (!preset) return;
+
+  const today = new Date();
+  const arrive = new Date(today.getTime() + preset.nightsFromNow.arrive * 86400000);
+  const depart = new Date(today.getTime() + preset.nightsFromNow.depart * 86400000);
+  const fmt = (d) => d.toISOString().slice(0, 10);
+
+  form.elements.destination.value = preset.destination;
+  form.elements.origin.value = preset.origin;
+  form.elements.startDate.value = fmt(arrive);
+  form.elements.endDate.value = fmt(depart);
+  form.elements.travelers.value = String(preset.travelers);
+  form.elements.budget.value = String(preset.budget);
+
+  const vibes = new Set(preset.vibes);
+  form.querySelectorAll('.chips[data-name="vibes"] input[type="checkbox"]').forEach((i) => {
+    i.checked = vibes.has(i.value);
+  });
+  const mustHaves = new Set(preset.mustHaves);
+  form.querySelectorAll('.chips[data-name="mustHaves"] input[type="checkbox"]').forEach((i) => {
+    i.checked = mustHaves.has(i.value);
+  });
+  form.querySelectorAll('input[name="concern"]').forEach((i) => {
+    i.checked = i.value === preset.concern;
+  });
+  form.querySelectorAll('input[name="style"]').forEach((i) => {
+    i.checked = i.value === preset.style;
+  });
+
+  // refresh chip disabled state
+  const group = document.querySelector('.chips[data-name="vibes"]');
+  if (group) group.dispatchEvent(new Event("change", { bubbles: true }));
+
+  // Run instantly
+  if (typeof form.requestSubmit === "function") {
+    form.requestSubmit();
+  } else {
+    form.dispatchEvent(new Event("submit", { cancelable: true }));
+  }
+}
+
+document.querySelectorAll(".preset[data-preset]").forEach((btn) => {
+  btn.addEventListener("click", () => applyPreset(btn.dataset.preset));
+});
+
+// ---------------------------- share (generate view-only link)
+
+const shareBtn = document.getElementById("shareBtn");
+const shareStatusEl = document.getElementById("shareStatus");
+const shareBlock = document.getElementById("shareBlock");
+
+function resetShareState() {
+  if (!shareBtn) return;
+  shareBtn.disabled = false;
+  shareBtn.dataset.state = "";
+  const label = shareBtn.querySelector(".share__label");
+  if (label) label.textContent = "Send this to someone you\u2019re traveling with";
+  if (shareStatusEl) shareStatusEl.textContent = "";
+}
+
+async function createShare() {
+  if (!latestTrip || !latestResult) return null;
+  if (latestShareId) return latestShareId;
+  const res = await fetch("/.netlify/functions/share", {
+    method: "POST",
+    headers: { "Content-Type": "application/json" },
+    body: JSON.stringify({ trip: latestTrip, result: latestResult }),
+  });
+  if (!res.ok) throw new Error(`Share failed: ${res.status}`);
+  const data = await res.json();
+  latestShareId = data.id;
+  return latestShareId;
+}
+
+function shareUrlFor(id) {
+  const base = window.location.origin;
+  return `${base}/?share=${encodeURIComponent(id)}`;
+}
+
+async function copyShareUrl(url) {
+  try {
+    if (navigator.clipboard && navigator.clipboard.writeText) {
+      await navigator.clipboard.writeText(url);
+      return true;
+    }
+  } catch {
+    // fall through to fallback
+  }
+  try {
+    const ta = document.createElement("textarea");
+    ta.value = url;
+    ta.style.position = "fixed";
+    ta.style.opacity = "0";
+    document.body.appendChild(ta);
+    ta.select();
+    document.execCommand("copy");
+    document.body.removeChild(ta);
+    return true;
+  } catch {
+    return false;
+  }
+}
+
+if (shareBtn) {
+  shareBtn.addEventListener("click", async () => {
+    if (!latestTrip || !latestResult) return;
+    const label = shareBtn.querySelector(".share__label");
+    shareBtn.disabled = true;
+    shareBtn.dataset.state = "working";
+    if (label) label.textContent = "Creating link\u2026";
+    if (shareStatusEl) shareStatusEl.textContent = "";
+
+    try {
+      const id = await createShare();
+      const url = shareUrlFor(id);
+      const copied = await copyShareUrl(url);
+      shareBtn.dataset.state = "done";
+      if (label) label.textContent = copied ? "Link copied \u2713" : "Link ready";
+      if (shareStatusEl) {
+        shareStatusEl.textContent = copied
+          ? "Pasted to your clipboard — send it to anyone you\u2019re traveling with."
+          : url;
+      }
+    } catch (err) {
+      console.warn("Share link failed", err);
+      shareBtn.disabled = false;
+      shareBtn.dataset.state = "error";
+      if (label) label.textContent = "Try again";
+      if (shareStatusEl) shareStatusEl.textContent = "Couldn\u2019t create a link just now.";
+    }
+  });
+}
+
+// ---------------------------- shared-view mode (read-only)
+
+function enterSharedView() {
+  sharedViewActive = true;
+  document.body.dataset.shared = "true";
+  const banner = document.getElementById("sharedBanner");
+  if (banner) banner.hidden = false;
+
+  // Hide the entry form entirely — this is a read-only page.
+  if (views.entry) views.entry.hidden = true;
+
+  // Hide in-result actions that don't apply to a shared, read-only view.
+  if (shareBlock) shareBlock.hidden = true;
+  const verdictActions = document.querySelector(".verdict__actions");
+  if (verdictActions) verdictActions.hidden = true;
+  const verdictMicro = document.getElementById("verdictMicro");
+  if (verdictMicro) verdictMicro.hidden = true;
+  const verdictPreview = document.getElementById("verdictPreview");
+  if (verdictPreview) verdictPreview.hidden = true;
+  const retryFooter = document.querySelector(".retry");
+  if (retryFooter) retryFooter.hidden = true;
+}
+
+async function loadSharedResult(id) {
+  const res = await fetch(
+    `/.netlify/functions/share?id=${encodeURIComponent(id)}`
+  );
+  if (!res.ok) throw new Error(`Share load failed: ${res.status}`);
+  return res.json();
+}
+
+(async function maybeBootSharedView() {
+  const params = new URLSearchParams(window.location.search);
+  const id = params.get("share");
+  if (!id) return;
+
+  try {
+    const data = await loadSharedResult(id);
+    if (!data || !data.trip || !data.result) throw new Error("Malformed share");
+    enterSharedView();
+    latestTrip = data.trip;
+    latestResult = data.result;
+    renderResults(data.trip, data.result, { silent: true });
+    showView("results");
+  } catch (err) {
+    console.warn("Could not load shared trip", err);
+    // Silent fallback to entry screen.
+  }
+})();
+

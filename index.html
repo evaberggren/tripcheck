@@ -45,8 +45,11 @@
             <span class="entry__headline-accent">TripLens</span>.
           </h1>
           <p class="entry__dek">
-            We tell you whether this trip will deliver what you’re hoping for —
-            or quietly disappoint. Before you book.
+            We tell you if your trip is actually a good idea —
+            before you book it.
+          </p>
+          <p class="entry__hook">
+            Most people only run this after they’ve already booked wrong.
           </p>
 
           <aside class="entry__quote" aria-hidden="true">
@@ -61,6 +64,17 @@
 
         <form class="intake" id="intakeForm" novalidate="">
           <p class="intake__lead">Tell us the trip you’re considering.</p>
+
+          <div class="presets" aria-label="Popular trip checks">
+            <p class="presets__label">Or try a preset</p>
+            <div class="presets__row">
+              <button type="button" class="preset" data-preset="amalfi">Amalfi Coast</button>
+              <button type="button" class="preset" data-preset="tulum">Tulum</button>
+              <button type="button" class="preset" data-preset="tokyo">Tokyo</button>
+              <button type="button" class="preset" data-preset="paris">Paris</button>
+              <button type="button" class="preset" data-preset="rio">Rio</button>
+            </div>
+          </div>
 
           <div class="intake__grid">
             <label class="field field--span-6">
@@ -168,6 +182,14 @@
 
       <!-- ============================== RESULTS SCREEN ============================== -->
       <section class="view view--results" data-view="results" aria-labelledby="results-heading" hidden="">
+        <aside class="shared-banner" id="sharedBanner" hidden="">
+          <p class="shared-banner__label">A shared TripLens diagnosis</p>
+          <p class="shared-banner__lede">
+            Someone ran this trip through TripLens and sent it your way.
+          </p>
+          <a class="shared-banner__cta" href="/">Run your own trip →</a>
+        </aside>
+
         <div class="results__meta">
           <p class="results__eyebrow">
             <span id="resultTripline">Cinque Terre · 5 nights · Aug 3</span>
@@ -221,6 +243,24 @@
             <span class="verdict__confidence-value" id="confidenceValue">82%</span>
           </div>
         </article>
+
+        <!-- Share this diagnosis — view-only link -->
+        <aside class="share" id="shareBlock">
+          <div class="share__lines">
+            <p class="share__pretext">
+              We were about to book this trip wrong. This fixed it.
+            </p>
+          </div>
+          <div class="share__actions">
+            <button type="button" class="share__btn" id="shareBtn">
+              <svg class="share__icon" viewBox="0 0 24 24" aria-hidden="true" focusable="false">
+                <path d="M14 4h5v5M19 4l-8 8M10 6H6a2 2 0 0 0-2 2v10a2 2 0 0 0 2 2h10a2 2 0 0 0 2-2v-4" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"></path>
+              </svg>
+              <span class="share__label">Send this to someone you’re traveling with</span>
+            </button>
+            <p class="share__status" id="shareStatus" aria-live="polite"></p>
+          </div>
+        </aside>
 
         <!-- 2. Your biggest risk -->
         <article class="biggest-risk">
@@ -309,6 +349,9 @@
 
         <!-- 8. Retention / next actions -->
         <footer class="retry">
+          <p class="retry__reuse">
+            Run another trip before you book it.
+          </p>
           <p class="retry__retention">
             Save this — most people revisit this before they book.
           </p>

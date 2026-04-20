@@ -678,14 +678,16 @@ button {
 .view--results[data-stage="entering"] > *:nth-child(1) { animation-delay: 0ms; }
 .view--results[data-stage="entering"] > *:nth-child(2) { animation-delay: 0ms; }
 .view--results[data-stage="entering"] > *:nth-child(3) { animation-delay: 0ms; }
-.view--results[data-stage="entering"] > *:nth-child(4) { animation-delay: 120ms; }
-.view--results[data-stage="entering"] > *:nth-child(5) { animation-delay: 200ms; }
-.view--results[data-stage="entering"] > *:nth-child(6) { animation-delay: 260ms; }
-.view--results[data-stage="entering"] > *:nth-child(7) { animation-delay: 320ms; }
-.view--results[data-stage="entering"] > *:nth-child(8) { animation-delay: 380ms; }
-.view--results[data-stage="entering"] > *:nth-child(9) { animation-delay: 440ms; }
-.view--results[data-stage="entering"] > *:nth-child(10) { animation-delay: 500ms; }
-.view--results[data-stage="entering"] > *:nth-child(n+11) { animation-delay: 560ms; }
+.view--results[data-stage="entering"] > *:nth-child(4) { animation-delay: 0ms; }
+.view--results[data-stage="entering"] > *:nth-child(5) { animation-delay: 80ms; }
+.view--results[data-stage="entering"] > *:nth-child(6) { animation-delay: 160ms; }
+.view--results[data-stage="entering"] > *:nth-child(7) { animation-delay: 240ms; }
+.view--results[data-stage="entering"] > *:nth-child(8) { animation-delay: 300ms; }
+.view--results[data-stage="entering"] > *:nth-child(9) { animation-delay: 360ms; }
+.view--results[data-stage="entering"] > *:nth-child(10) { animation-delay: 420ms; }
+.view--results[data-stage="entering"] > *:nth-child(11) { animation-delay: 480ms; }
+.view--results[data-stage="entering"] > *:nth-child(12) { animation-delay: 540ms; }
+.view--results[data-stage="entering"] > *:nth-child(n+13) { animation-delay: 600ms; }
 
 @keyframes resultSection {
   from {
@@ -1892,4 +1894,298 @@ button {
     animation-iteration-count: 1 !important;
     transition-duration: 0.01ms !important;
   }
+}
+
+/* =============================== ENTRY ADDITIONS ============================
+   Top-of-funnel hook + preset pills. Tuned to sit quietly inside the
+   existing editorial rhythm — never feature-block loud.
+   =========================================================================== */
+
+.entry__hook {
+  margin: -2rem 0 2.75rem;
+  max-width: 34ch;
+  font-family: var(--serif);
+  font-style: italic;
+  font-weight: 300;
+  font-size: 1rem;
+  line-height: 1.5;
+  color: var(--sunset);
+  letter-spacing: -0.002em;
+  text-wrap: pretty;
+  position: relative;
+  padding-left: 1.1rem;
+  border-left: 2px solid rgba(198, 97, 61, 0.35);
+}
+
+@media (max-width: 960px) {
+  .entry__hook {
+    margin-top: -1.5rem;
+  }
+}
+
+.presets {
+  margin: -0.75rem 0 1.75rem;
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 0.5rem 0.85rem;
+}
+
+.presets__label {
+  margin: 0;
+  font-family: var(--serif);
+  font-style: italic;
+  font-weight: 300;
+  font-size: 0.92rem;
+  color: var(--ink-muted);
+  letter-spacing: 0;
+  padding-right: 0.25rem;
+}
+
+.presets__row {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.4rem;
+}
+
+.preset {
+  appearance: none;
+  background: rgba(255, 255, 255, 0.55);
+  border: 1px solid rgba(28, 26, 23, 0.14);
+  border-radius: var(--radius-pill);
+  padding: 0.4rem 0.9rem;
+  font-family: var(--serif);
+  font-weight: 400;
+  font-size: 0.92rem;
+  line-height: 1;
+  color: var(--ink-soft);
+  letter-spacing: -0.003em;
+  cursor: pointer;
+  transition: background 200ms var(--ease-out), color 200ms var(--ease-out),
+    border-color 200ms var(--ease-out), transform 200ms var(--ease-out);
+}
+
+.preset:hover {
+  background: var(--ink);
+  color: var(--paper);
+  border-color: var(--ink);
+  transform: translateY(-1px);
+}
+
+.preset:focus-visible {
+  outline: none;
+  box-shadow: var(--shadow-pressed);
+}
+
+/* =============================== SHARE BLOCK ==============================
+   Sits right under the verdict card. Elegant, sparse, not promotional —
+   a natural move for couples, friends, and group trips.
+   =========================================================================== */
+
+.share {
+  display: grid;
+  grid-template-columns: 1fr auto;
+  align-items: center;
+  gap: 1.5rem 2rem;
+  padding: 1.5rem 1.75rem;
+  background: rgba(255, 255, 255, 0.4);
+  border: var(--rule);
+  border-radius: var(--radius-card);
+  max-width: 70ch;
+  margin: -0.5rem 0 0;
+}
+
+.share[hidden] {
+  display: none;
+}
+
+.share__lines {
+  display: flex;
+  flex-direction: column;
+  gap: 0.2rem;
+}
+
+.share__pretext {
+  margin: 0;
+  font-family: var(--serif);
+  font-style: italic;
+  font-weight: 400;
+  font-size: clamp(1rem, 1.6vw, 1.08rem);
+  line-height: 1.4;
+  color: var(--ink);
+  letter-spacing: -0.003em;
+  text-wrap: balance;
+}
+
+.share__actions {
+  display: flex;
+  flex-direction: column;
+  align-items: flex-end;
+  gap: 0.5rem;
+  min-width: 0;
+}
+
+.share__btn {
+  appearance: none;
+  background: transparent;
+  border: 1px solid rgba(28, 26, 23, 0.28);
+  color: var(--ink);
+  border-radius: var(--radius-pill);
+  padding: 0.7rem 1.15rem;
+  font-family: var(--sans);
+  font-size: 0.94rem;
+  font-weight: 500;
+  letter-spacing: 0;
+  display: inline-flex;
+  align-items: center;
+  gap: 0.55rem;
+  cursor: pointer;
+  transition: background 220ms var(--ease-out), color 220ms var(--ease-out),
+    border-color 220ms var(--ease-out);
+  white-space: nowrap;
+}
+
+.share__btn:hover {
+  background: var(--ink);
+  color: var(--paper);
+  border-color: var(--ink);
+}
+
+.share__btn:focus-visible {
+  outline: none;
+  box-shadow: var(--shadow-pressed);
+}
+
+.share__btn:disabled {
+  cursor: progress;
+  opacity: 0.85;
+}
+
+.share__btn[data-state="done"] {
+  background: var(--moss);
+  color: #f5efe1;
+  border-color: var(--moss);
+}
+
+.share__icon {
+  width: 16px;
+  height: 16px;
+}
+
+.share__status {
+  margin: 0;
+  font-family: var(--serif);
+  font-style: italic;
+  font-weight: 300;
+  font-size: 0.86rem;
+  line-height: 1.4;
+  color: var(--ink-muted);
+  text-align: right;
+  max-width: 30ch;
+  text-wrap: pretty;
+}
+
+@media (max-width: 720px) {
+  .share {
+    grid-template-columns: 1fr;
+    padding: 1.35rem 1.35rem 1.5rem;
+  }
+
+  .share__actions {
+    align-items: stretch;
+  }
+
+  .share__btn {
+    justify-content: center;
+    width: 100%;
+  }
+
+  .share__status {
+    text-align: left;
+    max-width: none;
+  }
+}
+
+/* =============================== RETRY — REUSE PROMPT ======================
+   Single quiet line above the retry block. Not promotional.
+   =========================================================================== */
+
+.retry__reuse {
+  margin: 0 0 -0.25rem;
+  font-family: var(--serif);
+  font-style: italic;
+  font-weight: 400;
+  font-size: clamp(1.05rem, 1.9vw, 1.18rem);
+  line-height: 1.4;
+  color: var(--ink);
+  letter-spacing: -0.005em;
+  text-wrap: balance;
+  max-width: 44ch;
+}
+
+/* =============================== SHARED VIEW BANNER ========================
+   Shown only when someone opens a view-only share link.
+   =========================================================================== */
+
+.shared-banner {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: baseline;
+  gap: 0.35rem 1.25rem;
+  padding: 1.1rem 1.35rem;
+  background: linear-gradient(180deg, #fbf3e1 0%, #f2e6c9 100%);
+  border: var(--rule);
+  border-radius: var(--radius-card);
+  max-width: 70ch;
+}
+
+.shared-banner[hidden] {
+  display: none;
+}
+
+.shared-banner__label {
+  margin: 0;
+  font-size: 0.72rem;
+  letter-spacing: 0.22em;
+  text-transform: uppercase;
+  color: var(--sunset);
+  font-weight: 600;
+}
+
+.shared-banner__lede {
+  margin: 0;
+  flex: 1 1 auto;
+  font-family: var(--serif);
+  font-style: italic;
+  font-weight: 300;
+  font-size: 1.02rem;
+  line-height: 1.45;
+  color: var(--ink-soft);
+  letter-spacing: -0.003em;
+  min-width: 20ch;
+}
+
+.shared-banner__cta {
+  font-family: var(--sans);
+  font-weight: 500;
+  font-size: 0.9rem;
+  color: var(--ink);
+  text-decoration: none;
+  padding-bottom: 2px;
+  border-bottom: 1px solid rgba(28, 26, 23, 0.28);
+  transition: border-color 220ms var(--ease-out);
+  white-space: nowrap;
+}
+
+.shared-banner__cta:hover {
+  border-bottom-color: var(--ink);
+}
+
+/* In shared view, hide retention copy that's not for the recipient. */
+body[data-shared="true"] .retry,
+body[data-shared="true"] .verdict__actions,
+body[data-shared="true"] .verdict__micro,
+body[data-shared="true"] .verdict__preview,
+body[data-shared="true"] .share {
+  display: none;
 }

@@ -6,6 +6,7 @@
   "description": "TripLens — a second opinion before you book.",
   "dependencies": {
     "@anthropic-ai/sdk": "^0.35.0",
+    "@netlify/blobs": "^8.1.0",
     "@netlify/functions": "^2.8.2"
   }
 }
