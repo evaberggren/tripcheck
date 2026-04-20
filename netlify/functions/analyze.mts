@@ -56,6 +56,7 @@ Return a single JSON object with EXACTLY these keys:
   "verdictOutcome": "ONE short declarative outcome sentence naming what this trip will FEEL like as planned. 10–14 words. Begin with 'As planned,' and use 'will' not 'may'. Name the emotional consequence, not the tension. Example shape: 'As planned, this trip will feel crowded instead of calm.'",
   "confidence": integer 0–100,
   "biggestRisk": "ONE short punchy sentence stating what will happen, not what might. Max 12 words. Use 'will', not 'could'. Example shape: 'This will feel busier and louder than you want.'",
+  "patternInsight": "ONE short supporting observation about the pattern most travelers get wrong at THIS destination. Under 16 words. Declarative. Shape examples: 'Most people get this wrong by trying to do everything from one base.', 'Most travelers miss the second-village detour and regret it.' No hedging.",
   "why": [
     "EXACTLY 3–4 short bullets. Each is ONE LINE — a scannable sentence fragment under 12 words. Specific to this destination, dates, preferences. Declarative, no hedging. Examples of shape: 'Your dates sit inside peak European holiday traffic', 'This destination concentrates crowds into two streets', 'Your vibes lean calm; this city runs loud until 2am'."
   ],
@@ -88,7 +89,8 @@ Return a single JSON object with EXACTLY these keys:
       ]
     }
   ],
-  "styleNote": "EXACTLY two short lines, separated by a single newline. Line 1 names the tension between the traveler's style (${trip.style}) and this specific trip — shape: 'You're a ${trip.style}—but this trip rewards planning.' Line 2 states the concrete consequence declaratively — shape: 'Wing it and you'll miss the quiet coves and overpay for the busy ones.' No third line. Each line under 18 words."
+  "finalPlanOwnership": "ONE closing sentence after the final plan that names the traveler's selected vibes (${trip.vibes.join(", ") || "—"}) in their own words. Shape: 'This version actually delivers the calm, aesthetic, low-crowd trip you're looking for.' Under 20 words. Declarative, no hedging.",
+  "styleNote": "TWO sentences in ONE line. Total under 28 words. Shape: 'You're a ${trip.style}—but this trip only works if you're intentional. Without a plan, it skews chaotic.' First sentence: name the tension between the traveler's style (${trip.style}) and this trip, ending with the remedy (intentional, planned, deliberate). Second sentence: name the concrete consequence of not following through — declarative, under 12 words."
 }
 
 Critical rules:
@@ -102,7 +104,8 @@ Critical rules:
 - "howToFix" MUST have 3 to 5 items. Each step is specific and executable: name concrete places, neighborhoods, months, hours, or numbers. Include "detail" only when it adds something the title cannot carry alone.
 - "betterVersion" MUST have 1 to 2 items. Tight and curated.
 - "finalPlan" MUST be 2 to 4 legs. Together the day ranges must cover the full trip length (${nights} nights) without overlap or gaps, starting at Day 1. Each leg has 2–3 behavioral rules specific to that location — not generic "book early" filler. Reflect the prescribed upgrades (better neighborhoods, splits, timing) rather than the user's original plan.
-- "styleNote" must be exactly two lines.
+- "finalPlanOwnership" must echo the traveler's selected vibes (${trip.vibes.join(", ") || "—"}) in their own words, exactly in the shape shown. One declarative sentence.
+- "styleNote" must be ONE line: two sentences separated by a period. No newline. Under 28 words total.
 - Risks are five fields even though the UI surfaces four; always return all five.
 - No itineraries. No hotel names. No restaurant names. No maps. No booking links. No URLs. No emoji. No apps or tools. (Neighborhoods, landmarks, and regions ARE allowed and encouraged for specificity.)
 - Tailor every line to the destination, vibes, dates, and budget given. Generic advice is a failure.`;

@@ -215,6 +215,17 @@ function renderResults(trip, r) {
   // biggest risk
   document.getElementById("biggestRisk").textContent = r.biggestRisk || "—";
 
+  // pattern insight — one-line supporting observation under biggest risk
+  const patternEl = document.getElementById("patternInsight");
+  const patternText = (r.patternInsight || "").toString().trim();
+  if (patternText) {
+    patternEl.textContent = patternText;
+    patternEl.hidden = false;
+  } else {
+    patternEl.textContent = "";
+    patternEl.hidden = true;
+  }
+
   // why list
   const whyList = document.getElementById("whyList");
   whyList.innerHTML = "";
@@ -343,25 +354,70 @@ function renderResults(trip, r) {
     finalPlanSection.hidden = true;
   }
 
+  // ownership line — reflects the user's selected vibes and must-haves
+  const ownershipEl = document.getElementById("finalPlanOwnership");
+  ownershipEl.textContent = buildOwnershipLine(trip, r.finalPlanOwnership);
+
   // style note
-  document.getElementById("styleNote").textContent = r.styleNote || "";
+  document.getElementById("styleNote").textContent =
+    r.styleNote ||
+    `You\u2019re ${trip.style || "balanced"} \u2014 but this trip only works if you\u2019re intentional. Without a plan, it skews chaotic.`;
 }
 
-// ---------------------------- continue CTA + reset
+// ---------------------------- verdict CTAs + retry actions
 
-const continueCta = document.getElementById("continueCta");
-if (continueCta) {
-  continueCta.addEventListener("click", () => {
-    continueCta.disabled = true;
-    const label = continueCta.querySelector(".cta__label");
+const planCta = document.getElementById("planCta");
+if (planCta) {
+  planCta.addEventListener("click", () => {
+    planCta.disabled = true;
+    const label = planCta.querySelector(".cta__label");
     const original = label ? label.textContent : "";
     if (label) label.textContent = "Day-by-day planning is coming soon";
     setTimeout(() => {
       if (label && original) label.textContent = original;
-      continueCta.disabled = false;
+      planCta.disabled = false;
     }, 2400);
   });
 }
+
+const savePlanBtn = document.getElementById("savePlanBtn");
+if (savePlanBtn) {
+  const savedLabel = "Saved \u2713";
+  const defaultLabel = savePlanBtn.textContent.trim();
+  savePlanBtn.addEventListener("click", () => {
+    if (savePlanBtn.dataset.saved === "true") return;
+    savePlanBtn.dataset.saved = "true";
+    savePlanBtn.textContent = savedLabel;
+    setTimeout(() => {
+      savePlanBtn.dataset.saved = "";
+      savePlanBtn.textContent = defaultLabel;
+    }, 2800);
+  });
+}
+
+const retryHandlers = {
+  dates: () => {
+    showView("entry");
+    const start = form.elements.startDate;
+    const end = form.elements.endDate;
+    if (start) start.value = "";
+    if (end) end.value = "";
+    requestAnimationFrame(() => start && start.focus());
+  },
+  destination: () => {
+    showView("entry");
+    const dest = form.elements.destination;
+    if (dest) dest.value = "";
+    requestAnimationFrame(() => dest && dest.focus());
+  },
+};
+
+document.querySelectorAll("[data-retry]").forEach((btn) => {
+  btn.addEventListener("click", () => {
+    const handler = retryHandlers[btn.dataset.retry];
+    if (handler) handler();
+  });
+});
 
 document.querySelectorAll('[data-iterate="reset"]').forEach((btn) => {
   btn.addEventListener("click", () => {
@@ -431,4 +487,49 @@ function invertLevel(level) {
 
 function clamp(n, a, b) {
   return Math.max(a, Math.min(b, n));
+}
+
+// Map the user's selected vibes and must-haves into a tight descriptor
+// used by the ownership line after the final plan.
+const VIBE_WORDS = {
+  peaceful: "calm",
+  luxury: "elevated",
+  aesthetic: "aesthetic",
+  adventure: "adventurous",
+  social: "social",
+};
+const MUST_WORDS = {
+  walkable: "walkable",
+  beach: "beach-focused",
+  "luxury-hotel": "indulgent",
+  "low-crowds": "low-crowd",
+  "good-food": "food-led",
+};
+
+function describeTripVibes(trip) {
+  const words = [];
+  (trip.vibes || []).forEach((v) => {
+    const w = VIBE_WORDS[v];
+    if (w && !words.includes(w)) words.push(w);
+  });
+  (trip.mustHaves || []).forEach((m) => {
+    const w = MUST_WORDS[m];
+    if (w && !words.includes(w)) words.push(w);
+  });
+  return words.slice(0, 3);
+}
+
+function joinDescriptors(words) {
+  if (!words.length) return "";
+  if (words.length === 1) return words[0];
+  if (words.length === 2) return `${words[0]} and ${words[1]}`;
+  return `${words.slice(0, -1).join(", ")}, ${words[words.length - 1]}`;
+}
+
+function buildOwnershipLine(trip, serverText) {
+  const text = (serverText || "").toString().trim();
+  if (text) return text;
+  const descriptors = describeTripVibes(trip);
+  const joined = joinDescriptors(descriptors) || "calm, intentional";
+  return `This version actually delivers the ${joined} trip you\u2019re looking for.`;
 }

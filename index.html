@@ -189,6 +189,10 @@
           <h2 id="results-heading" class="results__heading">Your diagnosis</h2>
         </div>
 
+        <p class="results__framing">
+          Here’s the version of this trip you actually want.
+        </p>
+
         <!-- 1. Verdict -->
         <article class="verdict" id="verdictCard">
           <p class="verdict__label">TripLens verdict</p>
@@ -199,6 +203,20 @@
           <p class="verdict__outcome" id="verdictOutcome">
             As planned, this trip will feel crowded instead of calm.
           </p>
+
+          <div class="verdict__actions">
+            <button type="button" class="cta verdict__cta" id="planCta">
+              <span class="cta__label">Build my day-by-day plan</span>
+              <svg class="cta__arrow" viewBox="0 0 24 24" aria-hidden="true">
+                <path d="M4 12h15m0 0-5.5-5.5M19 12l-5.5 5.5" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"></path>
+              </svg>
+            </button>
+            <button type="button" class="verdict__save" id="savePlanBtn">
+              Save this plan
+            </button>
+          </div>
+          <p class="verdict__micro">Takes ~2 minutes</p>
+
           <div class="verdict__confidence">
             <span class="verdict__confidence-label">Confidence</span>
             <div class="verdict__confidence-track" aria-hidden="true">
@@ -214,6 +232,9 @@
           <blockquote class="biggest-risk__quote" id="biggestRisk">
             This will feel busier and louder than you want.
           </blockquote>
+          <p class="biggest-risk__pattern" id="patternInsight">
+            Most people get this wrong by trying to do everything from one base.
+          </p>
         </article>
 
         <!-- 3. The Prescription -->
@@ -245,13 +266,26 @@
           </p>
         </article>
 
-        <!-- 5b. Book this version instead — final plan -->
+        <!-- 5b. Transition into final plan -->
+        <aside class="plan-leadin" aria-hidden="false">
+          <p class="plan-leadin__warning">
+            If you adjust nothing, this trip trends chaotic.
+          </p>
+          <p class="plan-leadin__promise">
+            This is the version that actually works:
+          </p>
+        </aside>
+
+        <!-- 5c. Book this version instead — final plan -->
         <article class="final-plan" id="finalPlanSection">
           <p class="final-plan__eyebrow">The final plan</p>
           <h4 class="section-title">Book this version instead</h4>
           <ol class="final-plan__list" id="finalPlanList">
             <!-- days injected -->
           </ol>
+          <p class="final-plan__ownership" id="finalPlanOwnership">
+            This version actually delivers the calm, aesthetic, low-crowd trip you’re looking for.
+          </p>
         </article>
 
         <!-- 6. Risk breakdown -->
@@ -266,22 +300,24 @@
         <article class="style-note">
           <p class="style-note__label">A note on how you travel</p>
           <p class="style-note__body" id="styleNote">
-            You’re a wanderer—but this trip rewards planning.
-            Wing it and you’ll miss the quiet coves and overpay for the busy ones.
+            You’re balanced — but this trip only works if you’re intentional. Without a plan, it skews chaotic.
           </p>
         </article>
 
-        <!-- 8. Single continuation CTA -->
-        <footer class="continue">
-          <button type="button" class="cta continue__cta" id="continueCta">
-            <span class="cta__label">Turn this into a day-by-day plan</span>
-            <svg class="cta__arrow" viewBox="0 0 24 24" aria-hidden="true">
-              <path d="M4 12h15m0 0-5.5-5.5M19 12l-5.5 5.5" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"></path>
-            </svg>
-          </button>
-          <button type="button" class="continue__reset" data-iterate="reset">
-            Start over with different inputs
-          </button>
+        <!-- 8. Retry / next actions -->
+        <footer class="retry">
+          <p class="retry__intro">Not quite right? Try a different lens.</p>
+          <div class="retry__actions">
+            <button type="button" class="retry__btn" data-retry="dates">
+              Different dates
+            </button>
+            <button type="button" class="retry__btn" data-retry="destination">
+              A different destination
+            </button>
+            <button type="button" class="retry__btn" data-iterate="reset">
+              Start over
+            </button>
+          </div>
         </footer>
       </section>
     </main>
