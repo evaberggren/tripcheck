@@ -1188,15 +1188,14 @@ button {
 }
 
 .verdict__urgency {
-  margin: 0 auto 1rem;
-  max-width: 40ch;
+  margin: 0 auto 1.75rem;
+  max-width: 44ch;
   font-family: var(--serif);
-  font-style: italic;
   font-weight: 400;
-  font-size: clamp(1rem, 1.6vw, 1.12rem);
+  font-size: clamp(1.15rem, 2vw, 1.35rem);
   line-height: 1.4;
-  color: var(--sunset);
-  letter-spacing: -0.003em;
+  color: var(--ink);
+  letter-spacing: -0.005em;
   text-wrap: balance;
 }
 
@@ -1420,7 +1419,114 @@ button {
   display: none;
 }
 
-/* --- why we're saying this --- */
+/* --- core failure (2–4 structural bullets) --- */
+
+.core-failure {
+  border-top: var(--rule);
+  border-bottom: var(--rule);
+  padding: 2.75rem 0;
+  margin: 0.5rem 0 0;
+}
+
+.core-failure__label {
+  margin: 0 0 1rem;
+  font-size: 0.74rem;
+  letter-spacing: 0.24em;
+  text-transform: uppercase;
+  color: var(--sunset);
+  font-weight: 600;
+}
+
+.core-failure .section-title {
+  font-family: var(--serif);
+  font-style: italic;
+  font-weight: 300;
+  font-size: clamp(1.45rem, 2.6vw, 1.9rem);
+  line-height: 1.18;
+  letter-spacing: -0.015em;
+  color: var(--ink);
+  text-transform: none;
+  margin: 0 0 1.25rem;
+  max-width: 40ch;
+}
+
+.core-failure__lede {
+  margin: 0 0 1.5rem;
+  font-family: var(--serif);
+  font-weight: 400;
+  font-size: clamp(1.25rem, 2.2vw, 1.55rem);
+  line-height: 1.35;
+  color: var(--ink);
+  letter-spacing: -0.01em;
+  max-width: 42ch;
+  text-wrap: balance;
+  border-left: 2px solid var(--sunset);
+  padding-left: 1.1rem;
+}
+
+.core-failure__lede[hidden] {
+  display: none;
+}
+
+.core-failure__list {
+  list-style: none;
+  margin: 0;
+  padding: 0;
+  display: flex;
+  flex-direction: column;
+  gap: 0.9rem;
+  max-width: 62ch;
+}
+
+.core-failure__list li {
+  position: relative;
+  padding-left: 1.75rem;
+  font-family: var(--serif);
+  font-weight: 400;
+  font-size: 1.04rem;
+  line-height: 1.5;
+  color: var(--ink);
+  text-wrap: pretty;
+}
+
+.core-failure__list li::before {
+  content: "\2014";
+  position: absolute;
+  left: 0;
+  color: var(--sunset);
+  font-weight: 400;
+}
+
+/* --- why this works (standalone logic explainer) --- */
+
+.why-this-works {
+  padding: 2.25rem 0 2rem;
+  border-bottom: var(--rule);
+  max-width: 62ch;
+}
+
+.why-this-works__label {
+  margin: 0 0 0.9rem;
+  font-size: 0.74rem;
+  letter-spacing: 0.24em;
+  text-transform: uppercase;
+  color: var(--ink-muted);
+  font-weight: 600;
+}
+
+.why-this-works__body {
+  margin: 0;
+  font-family: var(--serif);
+  font-weight: 400;
+  font-size: clamp(1.08rem, 1.8vw, 1.22rem);
+  line-height: 1.55;
+  color: var(--ink);
+  letter-spacing: -0.005em;
+  text-wrap: pretty;
+  max-width: 58ch;
+}
+
+/* --- why we're saying this (legacy, unused in new structure) --- */
 
 .why {
   padding: 2.5rem 0 2rem;
@@ -2615,12 +2721,8 @@ button {
 /* In shared view, hide retention copy that's not for the recipient. */
 body[data-shared="true"] .retry,
 body[data-shared="true"] .verdict__actions,
-body[data-shared="true"] .verdict__micro,
-body[data-shared="true"] .verdict__preview,
 body[data-shared="true"] .save-panel,
-body[data-shared="true"] .book-the-version,
 body[data-shared="true"] .premium,
-body[data-shared="true"] .diagnostic-ribbon,
 body[data-shared="true"] .share {
   display: none;
 }

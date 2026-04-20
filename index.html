@@ -201,24 +201,15 @@
         </div>
 
         <p class="results__framing">
-          A decisive read on what works, what doesn’t, and the version to book.
+          A decisive read. What breaks, what to replace it with, what to book instead.
         </p>
 
-        <!-- Diagnostic signals ribbon — persisted proof of what was detected -->
-        <aside class="diagnostic-ribbon" id="diagnosticRibbon" aria-label="Diagnostic signals">
-          <p class="diagnostic-ribbon__label">Signals detected</p>
-          <ul class="diagnostic-ribbon__list" id="diagnosticRibbonList"></ul>
-        </aside>
-
-        <!-- 1. Verdict -->
+        <!-- 1. VERDICT — one clear line + one sharp sentence -->
         <article class="verdict" id="verdictCard">
           <p class="verdict__label">TripLens verdict</p>
           <h3 class="verdict__headline" id="verdictHeadline">Proceed with caution</h3>
           <p class="verdict__urgency" id="verdictUrgency">
-            Your current plan works against you. We have the version that doesn’t.
-          </p>
-          <p class="verdict__outcome" id="verdictOutcome">
-            As planned, this trip routes you into the same streets every other traveler is photographing — at the exact hours they’re all there.
+            The plan you’ve drawn up routes you into the loudest version of this trip — at the worst hours.
           </p>
 
           <div class="verdict__actions">
@@ -253,14 +244,6 @@
               Saved. You’ll have this when you’re ready to book.
             </p>
           </div>
-          <p class="verdict__micro" id="verdictMicro">
-            Two minutes. Bookable at the end.
-          </p>
-          <ol class="verdict__preview" id="verdictPreview" aria-label="Plan preview">
-            <li>Day 1: Arrive, settle in Leblon, sunset at Arpoador</li>
-            <li>Day 2: Christ + Sugarloaf early, beach after 3pm</li>
-            <li>Day 3: Hike Dois Irmãos, slow afternoon</li>
-          </ol>
 
           <div class="verdict__confidence">
             <span class="verdict__confidence-label">Confidence</span>
@@ -293,36 +276,40 @@
           </div>
         </aside>
 
-        <!-- 2. The corrected version — final plan, moved up as the immediate fix -->
-        <aside class="plan-leadin" aria-hidden="false">
-          <p class="plan-leadin__warning">
-            Here is the version that delivers the trip you came for.
-          </p>
-          <p class="plan-leadin__callback" id="personalizationCallback">
-            You want peaceful, aesthetic, low-crowd. Your current plan delivers the opposite. This is the one that does.
-          </p>
-        </aside>
-
-        <article class="final-plan" id="finalPlanSection">
-          <p class="final-plan__eyebrow">The corrected version</p>
-          <p class="final-plan__leadin">Book this version — here is how it plays out:</p>
-          <h4 class="section-title">Your trip, corrected</h4>
-          <ol class="final-plan__list" id="finalPlanList">
-            <!-- days injected -->
-          </ol>
-          <p class="final-plan__why" id="finalPlanWhy">
-            <span class="final-plan__why-label">Why this works:</span>
-            you’re separating calm and intensity — not forcing both into the same base.
-          </p>
-          <p class="final-plan__ownership" id="finalPlanOwnership">
-            This is the version worth your credit card.
-          </p>
+        <!-- 2. CORE FAILURE — what's structurally wrong (2–4 bullets) -->
+        <article class="core-failure" id="coreFailureSection">
+          <p class="core-failure__label">Core failure</p>
+          <h4 class="section-title">What’s structurally wrong</h4>
+          <blockquote class="core-failure__lede" id="coreFailureLede">
+            Basing in the busiest corridor at the worst hours is the decision that kills every other day.
+          </blockquote>
+          <ul class="core-failure__list" id="coreFailureList">
+            <!-- bullets injected -->
+          </ul>
         </article>
 
-        <!-- 3. Before vs After comparison -->
+        <!-- 3. PREDICTIVE SIGNALS — 2 specific constraints most travelers miss -->
+        <article class="predictive" id="predictiveSection">
+          <p class="predictive__eyebrow">Predictive signals</p>
+          <h4 class="section-title">Two things most travelers miss</h4>
+          <ul class="predictive__list" id="predictiveList">
+            <!-- injected -->
+          </ul>
+        </article>
+
+        <!-- 4. PRESCRIPTION — non-negotiable moves -->
+        <article class="prescribe" id="howToFixSection">
+          <p class="prescribe__eyebrow">Prescription</p>
+          <h4 class="section-title">Non-negotiable moves</h4>
+          <ol class="prescribe__list" id="howToFixList">
+            <!-- items injected -->
+          </ol>
+        </article>
+
+        <!-- 5. BEFORE VS AFTER — contrast their plan vs the optimized one -->
         <article class="before-after" id="beforeAfter">
           <p class="before-after__eyebrow">Before vs After</p>
-          <h4 class="section-title">What your current plan creates — and what we’re replacing it with</h4>
+          <h4 class="section-title">What your plan creates — and what replaces it</h4>
           <div class="before-after__grid">
             <section class="before-after__col before-after__col--before">
               <p class="before-after__tag">Current plan</p>
@@ -342,155 +329,42 @@
           </ul>
         </article>
 
-        <!-- 4. Predictive insights — specific, numbered, slightly unexpected -->
-        <article class="predictive" id="predictiveSection">
-          <p class="predictive__eyebrow">Predictive signals</p>
-          <h4 class="section-title">Two constraints your current plan misses</h4>
-          <ul class="predictive__list" id="predictiveList">
-            <!-- injected -->
-          </ul>
-          <p class="predictive__lock">
-            Exact windows, ferry schedules, and price thresholds unlock with TripLens Plan.
+        <!-- 6. CORRECTED VERSION — high-level day structure -->
+        <article class="final-plan" id="finalPlanSection">
+          <p class="final-plan__eyebrow">Corrected version</p>
+          <p class="final-plan__leadin" id="personalizationCallback">
+            You want peaceful, aesthetic, low-crowd. Your current plan delivers the opposite. This one does.
           </p>
-        </article>
-
-        <!-- 5. Your biggest risk -->
-        <article class="biggest-risk">
-          <p class="biggest-risk__label">Your biggest risk</p>
-          <p class="biggest-risk__opener" id="patternOpener">Most people get this wrong the same way:</p>
-          <p class="biggest-risk__pattern" id="patternInsight">
-            They base in the obvious tourist corridor and try to find calm inside it.
-          </p>
-          <blockquote class="biggest-risk__quote" id="biggestRisk">
-            Basing in Copacabana puts the city’s loudest stretch between you and the calm you came for.
-          </blockquote>
-        </article>
-
-        <!-- 6. The Prescription -->
-        <article class="prescribe" id="howToFixSection">
-          <p class="prescribe__eyebrow">The prescription</p>
-          <h4 class="section-title">Non-negotiable moves</h4>
-          <ol class="prescribe__list" id="howToFixList">
-            <!-- items injected -->
+          <h4 class="section-title">Your trip, rebuilt</h4>
+          <ol class="final-plan__list" id="finalPlanList">
+            <!-- days injected -->
           </ol>
         </article>
 
-        <!-- 7. The evidence -->
-        <article class="why">
-          <h4 class="section-title">The evidence</h4>
-          <ul class="why__list" id="whyList">
-            <!-- bullets injected -->
-          </ul>
-        </article>
-
-        <!-- 8. The version worth booking (alternatives) -->
-        <article class="better-version" id="betterVersionSection">
-          <p class="better-version__eyebrow">Alternatives</p>
-          <h4 class="section-title">If you want to go further</h4>
-          <div class="better-version__list" id="betterVersionList">
-            <!-- items injected -->
-          </div>
-          <p class="better-version__outro" id="betterVersionOutro">
-            This version delivers your goal: calm, aesthetic, low-friction travel.
+        <!-- 7. WHY THIS WORKS — one short logic line -->
+        <article class="why-this-works" id="whyThisWorksSection">
+          <p class="why-this-works__label">Why this works</p>
+          <p class="why-this-works__body" id="whyThisWorksBody">
+            You’re separating calm and intensity, not forcing both into the same base. Calm compounds in the morning; energy lands after 5pm. The plan runs with the city, not against it.
           </p>
         </article>
 
-        <!-- 9. Book the version that actually works -->
-        <article class="book-the-version" id="bookTheVersion">
-          <p class="book-the-version__eyebrow">Act on it</p>
-          <h4 class="section-title">Book the version that actually works</h4>
-          <p class="book-the-version__subcopy">
-            Specific bookings are part of the paid plan. Below, the shape of what to book — hotels, flights, and experiences are unlocked with TripLens Plan.
-          </p>
-
-          <section class="book-module" aria-labelledby="bookStayHeading">
-            <h5 id="bookStayHeading" class="book-module__heading">Stay where this trip works best</h5>
-            <div class="book-module__cards">
-              <article class="book-card book-card--locked">
-                <h6 class="book-card__title">Quieter base (first half)</h6>
-                <p class="book-card__subtitle">Away from the main tourist corridor</p>
-                <p class="book-card__rationale">Protects the calm you said you wanted</p>
-                <div class="book-card__footer">
-                  <span class="book-card__price">$$$</span>
-                  <button type="button" class="book-card__cta">Unlock stay</button>
-                </div>
-              </article>
-              <article class="book-card book-card--locked">
-                <h6 class="book-card__title">Second base (energy + dining)</h6>
-                <p class="book-card__subtitle">Closer to restaurants and activity</p>
-                <p class="book-card__rationale">Gives you variety without chaos</p>
-                <div class="book-card__footer">
-                  <span class="book-card__price">$$$</span>
-                  <button type="button" class="book-card__cta">Unlock stay</button>
-                </div>
-              </article>
-            </div>
-          </section>
-
-          <section class="book-module" aria-labelledby="bookFlightsHeading">
-            <h5 id="bookFlightsHeading" class="book-module__heading">Protect the version of this trip you actually want</h5>
-            <div class="book-module__cards">
-              <article class="book-card book-card--locked">
-                <h6 class="book-card__title">Early arrival window</h6>
-                <p class="book-card__rationale">Saves your best first day</p>
-                <div class="book-card__footer">
-                  <button type="button" class="book-card__cta">Unlock flights</button>
-                </div>
-              </article>
-              <article class="book-card book-card--locked">
-                <h6 class="book-card__title">Late departure window</h6>
-                <p class="book-card__rationale">Protects your last full day</p>
-                <div class="book-card__footer">
-                  <button type="button" class="book-card__cta">Unlock flights</button>
-                </div>
-              </article>
-            </div>
-          </section>
-
-          <section class="book-module" aria-labelledby="bookExperiencesHeading">
-            <h5 id="bookExperiencesHeading" class="book-module__heading">Book only what improves the trip</h5>
-            <ul class="book-module__list">
-              <li class="book-list-item">
-                <div class="book-list-item__copy">
-                  <p class="book-list-item__title">Early-entry at the major sight</p>
-                  <p class="book-list-item__rationale">Avoid the 10:30am crowd surge</p>
-                </div>
-                <button type="button" class="book-list-item__cta">Unlock experience</button>
-              </li>
-              <li class="book-list-item">
-                <div class="book-list-item__copy">
-                  <p class="book-list-item__title">One anchor reservation (dinner or beach club)</p>
-                  <p class="book-list-item__rationale">Gives the trip a focal point</p>
-                </div>
-                <button type="button" class="book-list-item__cta">Unlock experience</button>
-              </li>
-              <li class="book-list-item">
-                <div class="book-list-item__copy">
-                  <p class="book-list-item__title">One unplanned slot</p>
-                  <p class="book-list-item__rationale">Keeps the trip from feeling rigid</p>
-                </div>
-                <button type="button" class="book-list-item__cta">Unlock experience</button>
-              </li>
-            </ul>
-          </section>
-        </article>
-
-        <!-- 10. Premium — optional upgrade -->
+        <!-- 8. CTA HOOK — paid plan unlocks specifics -->
         <article class="premium" id="premiumSection">
-          <p class="premium__eyebrow">Fix my trip</p>
-          <h4 class="section-title">Turn this diagnosis into a trip you can book tonight</h4>
+          <p class="premium__eyebrow">Unlock the bookable version</p>
+          <h4 class="section-title">The specifics sit behind the paid plan</h4>
           <p class="premium__subcopy">
-            The diagnosis is free. The bookable plan — specific hotels, exact timing windows, ferry schedules — unlocks below.
+            The diagnosis is free. Exact hotels, exact timing windows, and bookings unlock below.
           </p>
           <div class="premium__cards">
             <article class="premium-card">
               <h5 class="premium-card__name">TripLens Plan</h5>
               <p class="premium-card__price">$19</p>
               <ul class="premium-card__list">
-                <li>day-by-day flow</li>
-                <li>where to stay (specific neighborhoods)</li>
-                <li>when to do key things (hour-level)</li>
-                <li>pacing that actually works</li>
+                <li>exact neighborhoods to base in</li>
+                <li>hour-level timing windows</li>
+                <li>day-by-day flow with slack</li>
+                <li>the one reservation worth holding</li>
               </ul>
               <button type="button" class="premium-card__cta">Fix my trip — $19</button>
             </article>
@@ -499,38 +373,21 @@
               <p class="premium-card__price">$49</p>
               <ul class="premium-card__list">
                 <li>everything above</li>
-                <li>specific hotel suggestions</li>
-                <li>flight timing guidance</li>
-                <li>curated spots (food, beach, etc.)</li>
-                <li>shareable version</li>
+                <li>specific hotels, by base</li>
+                <li>flight windows with fare logic</li>
+                <li>curated restaurants, sights, routing</li>
+                <li>shareable bookable version</li>
               </ul>
               <button type="button" class="premium-card__cta">Get the full version — $49</button>
             </article>
           </div>
         </article>
 
-        <!-- 11. Risk breakdown -->
-        <article class="risks">
-          <h4 class="section-title">Risk breakdown</h4>
-          <ul class="risks__list" id="risksList">
-            <!-- bars injected -->
-          </ul>
-        </article>
-
-        <!-- 12. A note on how you travel -->
-        <article class="style-note">
-          <p class="style-note__label">Your style vs this trip</p>
-          <p class="style-note__body" id="styleNote">
-            You’re balanced — but Rio punishes loose planning. Skip the early starts and the split, and the trip defaults to noise you’ll forget by the flight home.
-          </p>
-        </article>
-
-        <!-- 13. Retention / next actions -->
+        <!-- 9. Retry / next actions -->
         <footer class="retry">
           <p class="retry__reuse">
             Book the corrected version. Run the next trip before you book it.
           </p>
-          <p class="retry__intro">Most people come back here before they book.</p>
           <div class="retry__actions">
             <button type="button" class="retry__btn" data-retry="dates">
               Different dates
