@@ -219,9 +219,30 @@
                 <path d="M4 12h15m0 0-5.5-5.5M19 12l-5.5 5.5" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"></path>
               </svg>
             </button>
-            <button type="button" class="verdict__save" id="savePlanBtn">
+            <button type="button" class="verdict__save" id="savePlanBtn" aria-expanded="false" aria-controls="savePanel">
               Save this plan
             </button>
+          </div>
+          <div class="save-panel" id="savePanel" hidden="">
+            <p class="save-panel__title">Send this to yourself</p>
+            <form class="save-panel__form" id="savePanelForm" novalidate="">
+              <label class="save-panel__field">
+                <span class="save-panel__label">Email</span>
+                <input type="email" name="email" required="" autocomplete="email" placeholder="you@example.com">
+              </label>
+              <label class="save-panel__field">
+                <span class="save-panel__label">First name <span class="save-panel__optional">(optional)</span></span>
+                <input type="text" name="firstName" autocomplete="given-name">
+              </label>
+              <label class="save-panel__check">
+                <input type="checkbox" name="subscribe" checked="">
+                <span>Email me this and future TripLens fixes</span>
+              </label>
+              <button type="submit" class="save-panel__submit">Save and send</button>
+            </form>
+            <p class="save-panel__confirm" id="savePanelConfirm" hidden="">
+              Saved. You’ll have this when you’re ready to book.
+            </p>
           </div>
           <p class="verdict__micro" id="verdictMicro">
             Two minutes. Bookable at the end.
@@ -241,7 +262,7 @@
           </div>
         </article>
 
-        <!-- Share this diagnosis — view-only link -->
+        <!-- Share this diagnosis — inline copy-text panel -->
         <aside class="share" id="shareBlock">
           <div class="share__lines">
             <p class="share__pretext">
@@ -249,13 +270,17 @@
             </p>
           </div>
           <div class="share__actions">
-            <button type="button" class="share__btn" id="shareBtn">
+            <button type="button" class="share__btn" id="shareBtn" aria-expanded="false" aria-controls="sharePanel">
               <svg class="share__icon" viewBox="0 0 24 24" aria-hidden="true" focusable="false">
                 <path d="M14 4h5v5M19 4l-8 8M10 6H6a2 2 0 0 0-2 2v10a2 2 0 0 0 2 2h10a2 2 0 0 0 2-2v-4" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"></path>
               </svg>
               <span class="share__label">Send this to someone you’re traveling with</span>
             </button>
             <p class="share__status" id="shareStatus" aria-live="polite"></p>
+          </div>
+          <div class="share-panel" id="sharePanel" hidden="">
+            <p class="share-panel__text" id="sharePanelText">We ran this trip through TripLens. It said our current plan is close, but not quite right. The fix is splitting the stay, protecting early hours, and keeping one day open.</p>
+            <button type="button" class="share-panel__copy" id="sharePanelCopy">Copy</button>
           </div>
         </aside>
 
@@ -327,6 +352,120 @@
           </p>
         </article>
 
+        <!-- 5d. Book the version that actually works -->
+        <article class="book-the-version" id="bookTheVersion">
+          <p class="book-the-version__eyebrow">Act on it</p>
+          <h4 class="section-title">Book the version that actually works</h4>
+          <p class="book-the-version__subcopy">
+            TripLens caught the friction. These are the bookings that support the version you actually want.
+          </p>
+
+          <section class="book-module" aria-labelledby="bookStayHeading">
+            <h5 id="bookStayHeading" class="book-module__heading">Stay where this trip works best</h5>
+            <div class="book-module__cards">
+              <article class="book-card">
+                <h6 class="book-card__title">Quieter base (first half)</h6>
+                <p class="book-card__subtitle">Away from main tourist corridor</p>
+                <p class="book-card__rationale">This protects the calm you said you wanted</p>
+                <div class="book-card__footer">
+                  <span class="book-card__price">$$$</span>
+                  <button type="button" class="book-card__cta">View stay</button>
+                </div>
+              </article>
+              <article class="book-card">
+                <h6 class="book-card__title">Second base (energy + dining)</h6>
+                <p class="book-card__subtitle">Closer to restaurants and activity</p>
+                <p class="book-card__rationale">This gives you variety without chaos</p>
+                <div class="book-card__footer">
+                  <span class="book-card__price">$$$</span>
+                  <button type="button" class="book-card__cta">View stay</button>
+                </div>
+              </article>
+            </div>
+          </section>
+
+          <section class="book-module" aria-labelledby="bookFlightsHeading">
+            <h5 id="bookFlightsHeading" class="book-module__heading">Protect the version of this trip you actually want</h5>
+            <div class="book-module__cards">
+              <article class="book-card">
+                <h6 class="book-card__title">Early arrival</h6>
+                <p class="book-card__rationale">Saves your best first day</p>
+                <div class="book-card__footer">
+                  <button type="button" class="book-card__cta">View flights</button>
+                </div>
+              </article>
+              <article class="book-card">
+                <h6 class="book-card__title">Late departure</h6>
+                <p class="book-card__rationale">Protects your last full day</p>
+                <div class="book-card__footer">
+                  <button type="button" class="book-card__cta">View flights</button>
+                </div>
+              </article>
+            </div>
+          </section>
+
+          <section class="book-module" aria-labelledby="bookExperiencesHeading">
+            <h5 id="bookExperiencesHeading" class="book-module__heading">Book only what improves the trip</h5>
+            <ul class="book-module__list">
+              <li class="book-list-item">
+                <div class="book-list-item__copy">
+                  <p class="book-list-item__title">Early-entry major sight</p>
+                  <p class="book-list-item__rationale">Avoid peak crowds</p>
+                </div>
+                <button type="button" class="book-list-item__cta">View experience</button>
+              </li>
+              <li class="book-list-item">
+                <div class="book-list-item__copy">
+                  <p class="book-list-item__title">One anchor reservation (dinner or beach club)</p>
+                  <p class="book-list-item__rationale">Gives the trip a focal point</p>
+                </div>
+                <button type="button" class="book-list-item__cta">View experience</button>
+              </li>
+              <li class="book-list-item">
+                <div class="book-list-item__copy">
+                  <p class="book-list-item__title">One unplanned slot</p>
+                  <p class="book-list-item__rationale">Keeps the trip from feeling rigid</p>
+                </div>
+                <button type="button" class="book-list-item__cta">View experience</button>
+              </li>
+            </ul>
+          </section>
+        </article>
+
+        <!-- 5e. Premium — optional upgrade -->
+        <article class="premium" id="premiumSection">
+          <p class="premium__eyebrow">A real plan</p>
+          <h4 class="section-title">Want us to turn this into a real plan?</h4>
+          <p class="premium__subcopy">
+            TripLens gave you the diagnosis. This gives you the version you can actually book.
+          </p>
+          <div class="premium__cards">
+            <article class="premium-card">
+              <h5 class="premium-card__name">TripLens Plan</h5>
+              <p class="premium-card__price">$19</p>
+              <ul class="premium-card__list">
+                <li>day-by-day flow</li>
+                <li>where to stay (areas, not just hotels)</li>
+                <li>when to do key things</li>
+                <li>pacing that actually works</li>
+              </ul>
+              <button type="button" class="premium-card__cta">Unlock this plan</button>
+            </article>
+            <article class="premium-card premium-card--plus">
+              <h5 class="premium-card__name">TripLens Plus</h5>
+              <p class="premium-card__price">$49</p>
+              <ul class="premium-card__list">
+                <li>everything above</li>
+                <li>specific hotel suggestions</li>
+                <li>flight timing guidance</li>
+                <li>curated spots (food, beach, etc.)</li>
+                <li>shareable version</li>
+              </ul>
+              <button type="button" class="premium-card__cta">Get the full version</button>
+            </article>
+          </div>
+        </article>
+
         <!-- 6. Risk breakdown -->
         <article class="risks">
           <h4 class="section-title">Risk breakdown</h4>
@@ -346,9 +485,9 @@
         <!-- 8. Retention / next actions -->
         <footer class="retry">
           <p class="retry__reuse">
-            Run the next one before you book it. Not after.
+            Book the right version. Then run the next one.
           </p>
-          <p class="retry__intro">Not quite right? Try a different lens.</p>
+          <p class="retry__intro">Most people revisit this before they book.</p>
           <div class="retry__actions">
             <button type="button" class="retry__btn" data-retry="dates">
               Different dates

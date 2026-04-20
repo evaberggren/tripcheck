@@ -97,6 +97,7 @@ form.addEventListener("submit", async (e) => {
   latestResult = instant;
   latestShareId = null;
   resetShareState();
+  resetSavePanel();
   renderResults(trip, instant);
 
   // 2. Swap view immediately — no processing gate.
@@ -594,18 +595,57 @@ if (planCta) {
 }
 
 const savePlanBtn = document.getElementById("savePlanBtn");
-if (savePlanBtn) {
-  const savedLabel = "Saved \u2713";
-  const defaultLabel = savePlanBtn.textContent.trim();
+const savePanel = document.getElementById("savePanel");
+const savePanelForm = document.getElementById("savePanelForm");
+const savePanelConfirm = document.getElementById("savePanelConfirm");
+
+if (savePlanBtn && savePanel) {
   savePlanBtn.addEventListener("click", () => {
-    if (savePlanBtn.dataset.saved === "true") return;
-    savePlanBtn.dataset.saved = "true";
-    savePlanBtn.textContent = savedLabel;
-    setTimeout(() => {
-      savePlanBtn.dataset.saved = "";
-      savePlanBtn.textContent = defaultLabel;
-    }, 2800);
+    const isOpen = !savePanel.hidden;
+    if (isOpen) {
+      savePanel.hidden = true;
+      savePlanBtn.setAttribute("aria-expanded", "false");
+      savePlanBtn.textContent = "Save this plan";
+    } else {
+      savePanel.hidden = false;
+      savePlanBtn.setAttribute("aria-expanded", "true");
+      savePlanBtn.textContent = "Close";
+      const emailInput = savePanel.querySelector('input[type="email"]');
+      requestAnimationFrame(() => emailInput && emailInput.focus());
+    }
   });
+}
+
+if (savePanelForm) {
+  savePanelForm.addEventListener("submit", (e) => {
+    e.preventDefault();
+    const emailInput = savePanelForm.querySelector('input[type="email"]');
+    if (!emailInput || !emailInput.value.trim()) {
+      if (emailInput) emailInput.focus();
+      return;
+    }
+    savePanelForm.hidden = true;
+    if (savePanelConfirm) savePanelConfirm.hidden = false;
+  });
+}
+
+function resetSavePanel() {
+  if (savePanel) {
+    savePanel.hidden = true;
+  }
+  if (savePanelForm) {
+    savePanelForm.hidden = false;
+    savePanelForm.reset();
+    const subscribe = savePanelForm.querySelector('input[name="subscribe"]');
+    if (subscribe) subscribe.checked = true;
+  }
+  if (savePanelConfirm) {
+    savePanelConfirm.hidden = true;
+  }
+  if (savePlanBtn) {
+    savePlanBtn.setAttribute("aria-expanded", "false");
+    savePlanBtn.textContent = "Save this plan";
+  }
 }
 
 const retryHandlers = {
@@ -954,52 +994,42 @@ document.querySelectorAll(".preset[data-preset]").forEach((btn) => {
   btn.addEventListener("click", () => applyPreset(btn.dataset.preset));
 });
 
-// ---------------------------- share (generate view-only link)
+// ---------------------------- share (copyable text panel)
 
 const shareBtn = document.getElementById("shareBtn");
 const shareStatusEl = document.getElementById("shareStatus");
 const shareBlock = document.getElementById("shareBlock");
+const sharePanel = document.getElementById("sharePanel");
+const sharePanelText = document.getElementById("sharePanelText");
+const sharePanelCopy = document.getElementById("sharePanelCopy");
 
 function resetShareState() {
   if (!shareBtn) return;
   shareBtn.disabled = false;
   shareBtn.dataset.state = "";
+  shareBtn.setAttribute("aria-expanded", "false");
   const label = shareBtn.querySelector(".share__label");
   if (label) label.textContent = "Send this to someone you\u2019re traveling with";
   if (shareStatusEl) shareStatusEl.textContent = "";
+  if (sharePanel) sharePanel.hidden = true;
+  if (sharePanelCopy) {
+    sharePanelCopy.dataset.state = "";
+    sharePanelCopy.textContent = "Copy";
+  }
 }
 
-async function createShare() {
-  if (!latestTrip || !latestResult) return null;
-  if (latestShareId) return latestShareId;
-  const res = await fetch("/.netlify/functions/share", {
-    method: "POST",
-    headers: { "Content-Type": "application/json" },
-    body: JSON.stringify({ trip: latestTrip, result: latestResult }),
-  });
-  if (!res.ok) throw new Error(`Share failed: ${res.status}`);
-  const data = await res.json();
-  latestShareId = data.id;
-  return latestShareId;
-}
-
-function shareUrlFor(id) {
-  const base = window.location.origin;
-  return `${base}/?share=${encodeURIComponent(id)}`;
-}
-
-async function copyShareUrl(url) {
+async function copyTextToClipboard(text) {
   try {
     if (navigator.clipboard && navigator.clipboard.writeText) {
-      await navigator.clipboard.writeText(url);
+      await navigator.clipboard.writeText(text);
       return true;
     }
   } catch {
-    // fall through to fallback
+    // fall through
   }
   try {
     const ta = document.createElement("textarea");
-    ta.value = url;
+    ta.value = text;
     ta.style.position = "fixed";
     ta.style.opacity = "0";
     document.body.appendChild(ta);
@@ -1012,33 +1042,30 @@ async function copyShareUrl(url) {
   }
 }
 
-if (shareBtn) {
-  shareBtn.addEventListener("click", async () => {
-    if (!latestTrip || !latestResult) return;
-    const label = shareBtn.querySelector(".share__label");
-    shareBtn.disabled = true;
-    shareBtn.dataset.state = "working";
-    if (label) label.textContent = "Creating link\u2026";
-    if (shareStatusEl) shareStatusEl.textContent = "";
-
-    try {
-      const id = await createShare();
-      const url = shareUrlFor(id);
-      const copied = await copyShareUrl(url);
-      shareBtn.dataset.state = "done";
-      if (label) label.textContent = copied ? "Link copied \u2713" : "Link ready";
-      if (shareStatusEl) {
-        shareStatusEl.textContent = copied
-          ? "Pasted to your clipboard — send it to anyone you\u2019re traveling with."
-          : url;
-      }
-    } catch (err) {
-      console.warn("Share link failed", err);
-      shareBtn.disabled = false;
-      shareBtn.dataset.state = "error";
-      if (label) label.textContent = "Try again";
-      if (shareStatusEl) shareStatusEl.textContent = "Couldn\u2019t create a link just now.";
+if (shareBtn && sharePanel) {
+  shareBtn.addEventListener("click", () => {
+    const isOpen = !sharePanel.hidden;
+    if (isOpen) {
+      sharePanel.hidden = true;
+      shareBtn.setAttribute("aria-expanded", "false");
+    } else {
+      sharePanel.hidden = false;
+      shareBtn.setAttribute("aria-expanded", "true");
     }
+  });
+}
+
+if (sharePanelCopy && sharePanelText) {
+  sharePanelCopy.addEventListener("click", async () => {
+    const text = (sharePanelText.textContent || "").trim();
+    if (!text) return;
+    const copied = await copyTextToClipboard(text);
+    sharePanelCopy.dataset.state = copied ? "done" : "error";
+    sharePanelCopy.textContent = copied ? "Copied \u2713" : "Couldn\u2019t copy";
+    setTimeout(() => {
+      sharePanelCopy.dataset.state = "";
+      sharePanelCopy.textContent = "Copy";
+    }, 2200);
   });
 }
 
