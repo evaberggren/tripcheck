@@ -53,11 +53,12 @@ Return a single JSON object with EXACTLY these keys:
 {
   "verdict": "Proceed" | "Proceed with caution" | "Rethink this trip",
   "verdictPosition": "ONE definitive sentence stating your book/don't-book position. Use EXACTLY one of these three shapes, chosen to match the verdict: for 'Proceed' use 'We would book this trip.'; for 'Proceed with caution' use 'We would book this — with the changes below.'; for 'Rethink this trip' use 'We would not book this trip as planned.' No hedging. No variations.",
-  "verdictUrgency": "ONE short sentence naming how many concrete changes this trip needs. Creates urgency. Under 12 words. For 'Proceed with caution' use 'This trip needs 2–3 key changes to actually work.' For 'Rethink this trip' use 'This trip needs major changes before it can work.' For 'Proceed' return an empty string.",
-  "verdictOutcome": "ONE short declarative outcome sentence naming what this trip will FEEL like as planned. 10–14 words. Begin with 'As planned,' and use 'will' not 'may'. Name the emotional consequence, not the tension. Example shape: 'As planned, this trip will feel crowded instead of calm.'",
+  "verdictUrgency": "ONE blunt summary sentence that names, plainly, what is wrong with this trip as planned. Calm tone, no aggression, but zero softness. Under 14 words. For 'Proceed with caution' use shape: 'You're close — but your current setup works against your goals.' For 'Rethink this trip' use shape: 'This trip, as planned, will not deliver what you want.' For 'Proceed' return an empty string. No 'needs X changes' phrasing — this is a verdict, not a to-do.",
+  "verdictOutcome": "ONE declarative sentence that CONNECTS THE MISMATCH TO THE OUTCOME. Begin with 'As planned,'. Name the concrete mismatch (crowded zones, peak hours, generic tier, wrong side of town) AND the specific feeling or experience it kills. Use 'will' and em-dash. 16–26 words. Shape: 'As planned, this trip puts you in crowded, high-traffic zones during peak hours — which kills the calm, aesthetic experience you're after.' Never generic ('will feel busy'). The failure must feel visual and real.",
   "confidence": integer 0–100,
-  "biggestRisk": "ONE concrete punchy sentence naming a specific decision (base, timing, routing) that blocks what the traveler actually wants. 14–22 words. Name a place or behavior, not a poetic abstraction. Shape: 'Basing in Copacabana puts you in constant noise — and blocks the calm you actually want.' No 'may', no metaphor, no vague 'energy'.",
-  "patternInsight": "ONE short supporting observation about the pattern most travelers get wrong at THIS destination. Under 16 words. Declarative. Shape examples: 'Most people get this wrong by trying to do everything from one base.', 'Most travelers miss the second-village detour and regret it.' No hedging.",
+  "biggestRisk": "ONE concrete punchy sentence naming a specific decision (base, timing, routing) that blocks what the traveler actually wants. 14–22 words. Name a place or behavior, not a poetic abstraction. Shape: 'Basing in Copacabana puts you in constant noise — and blocks the calm you came for.' No 'may', no metaphor, no vague 'energy'.",
+  "patternOpener": "ONE short opener naming this destination and ending with a colon. Use EXACT shape: 'Most people get ${trip.destination.split(/[,\u2014\-]/)[0].trim() || trip.destination} wrong the same way:'. Under 10 words. No variation.",
+  "patternInsight": "ONE short generic pattern sentence that completes the opener — the mistake travelers repeatedly make at this destination. Under 18 words. Declarative, present tense, starts with 'They'. Shape examples: 'They base in high-traffic areas and try to find calm inside them.', 'They stack nightlife and calm into one base — and get neither.' Insider-knowledge tone, not advice.",
   "why": [
     "EXACTLY 3–4 short bullets. Each is ONE LINE — a scannable sentence fragment under 12 words. Specific to this destination, dates, preferences. Declarative, no hedging. Examples of shape: 'Your dates sit inside peak European holiday traffic', 'This destination concentrates crowds into two streets', 'Your vibes lean calm; this city runs loud until 2am'."
   ],
@@ -70,8 +71,8 @@ Return a single JSON object with EXACTLY these keys:
   },
   "howToFix": [
     {
-      "title": "ONE specific, executable instruction in imperative voice. Name concrete places, neighborhoods, months, hours, or constraints. 6–12 words. Shape examples: 'Base in Leblon or Urca, not Copacabana', 'Do Christ and Sugarloaf before 9am', 'Shift dates to late May or early June', 'Replace nightlife with hikes (Pedra Bonita, Dois Irmãos)', 'Cut Rio to 5 nights; add Paraty'. Never vague. No 'consider', 'try', 'think about'.",
-      "detail": "ONE tight supporting line. Max 16 words. Explains the why or names the concrete payoff. Omit the field entirely if the title stands alone."
+      "title": "ONE specific, executable instruction in imperative voice — framed as LEVERAGE, not suggestion. Name concrete places, neighborhoods, months, hours, or constraints. 8–18 words. At least two of the items MUST include a leverage tag — an em-dash clause naming why this specific move is non-optional. Shape examples: 'Do Christ and Sugarloaf before 9am — this is the single highest-leverage change you can make', 'Split Rio into two bases — this is what actually creates the calm + city balance you're trying to force', 'Base in Leblon or Urca, not Copacabana — this is the move that changes the texture of every day'. Never 'consider', 'try', 'think about'.",
+      "detail": "ONE tight supporting line. Max 18 words. Starts with a concrete 'why this matters' clause OR a specific payoff ('Morning windows are 60–70% less crowded and set the pace of every other day.'). Omit the field only if the title fully carries the leverage clause itself."
     }
   ],
   "betterVersion": [
@@ -81,7 +82,8 @@ Return a single JSON object with EXACTLY these keys:
     }
   ],
   "betterVersionOutro": "ONE closing sentence beneath the alternatives. Starts with 'This version delivers your goal:' and names the traveler's actual vibes in their own words (drawn from Desired vibes). Under 18 words.",
-  "personalizationCallback": "ONE sentence BEFORE the final plan that echoes the traveler's OWN selected inputs back at them. Shape: 'You said you want ${trip.vibes.join(", ") || "—"}${trip.mustHaves.length ? `, ${trip.mustHaves.join(", ")}` : ""} — this version actually delivers that.' Draw words from Desired vibes and Non-negotiables. Under 22 words. Declarative.",
+  "personalizationCallback": "ONE sentence BEFORE the final plan that echoes the traveler's OWN selected inputs back at them AND claims this version is the first one that delivers them. Shape: 'You said you wanted ${trip.vibes.join(", ") || "—"}${trip.mustHaves.length ? `, ${trip.mustHaves.join(", ")}` : ""} — this version is the first one that actually delivers all three.' If they selected only two descriptors use 'both' instead of 'all three'; if only one, use 'that'. Draw words from Desired vibes and Non-negotiables. Under 26 words. Declarative.",
+  "finalPlanLeadin": "ONE short bridging line above the final itinerary that makes it feel bookable, not theoretical. Under 14 words. Use EXACT shape: 'If you book this version, here's how it plays out:' — or a near-identical variant with the same 'If you book X — here's how it plays out' frame. No 'could', no 'might'.",
   "finalPlan": [
     {
       "days": "ONE short day-range label for this leg. Shape: 'Days 1–4', 'Days 5–9'. Must cover contiguous days starting at Day 1. Across all legs the total must equal the trip length (${nights} nights).",
@@ -96,26 +98,29 @@ Return a single JSON object with EXACTLY these keys:
   ],
   "whyThisWorks": "ONE short sentence AFTER the itinerary explaining WHY this structure works — name the behavioral principle the plan executes (splitting, separating, sequencing). Under 22 words. Shape: 'you're separating calm and intensity instead of forcing both into one place.' Lowercase start (prefixed by 'Why this works:' in UI). No hedging.",
   "finalPlanOwnership": "ONE closing sentence after the final plan that names the traveler's selected vibes (${trip.vibes.join(", ") || "—"}) in their own words. Shape: 'This version actually delivers the calm, aesthetic, low-crowd trip you're looking for.' Under 20 words. Declarative, no hedging.",
-  "styleNote": "TWO sentences in ONE line. Total under 32 words. Sharper and more decisive than a generic style note. Shape: 'You're ${trip.style}—but ${trip.destination} punishes loose planning. Without early starts and a split, the trip defaults to crowded and forgettable.' First sentence: name the tension between the traveler's style (${trip.style}) and THIS specific destination (${trip.destination}) using 'punishes' or a similarly concrete verb. Second sentence: name the specific failure mode of winging it at this destination — declarative, under 16 words, concrete (what they'll actually miss)."
+  "styleNote": "TWO sentences in ONE line. Total under 30 words. Sharper and more decisive than a generic style note. Shape: 'You're ${trip.style}—but ${trip.destination} punishes loose planning. Without early starts and a split, the trip defaults to crowded and forgettable.' First sentence: name the tension between the traveler's style (${trip.style}) and THIS specific destination (${trip.destination}) using 'punishes' or a similarly concrete verb. Second sentence: name the specific failure mode of winging it at this destination — declarative, under 14 words, concrete (what they'll actually miss)."
 }
 
 Critical rules:
 - Output ONLY the JSON object. No prose, no markdown fencing.
-- Decisive voice throughout. Use "will" not "may", imperatives not suggestions. Ban the words: consider, try, think about, you could, might, should probably, perhaps, it's worth, may want to.
-- Every line must be scannable in under two seconds. Cut filler, adjectives, wind-up.
+- Decisive voice throughout. Use "will" not "may", imperatives not suggestions. Ban the words: consider, try, think about, you could, might, should probably, perhaps, it's worth, may want to, very, really, quite.
+- Every line must be scannable in under two seconds. Cut filler, adjectives, wind-up. Prefer shorter, sharper sentences. Every line should either reveal something or move the decision forward.
 - "verdictPosition" is a definitive book/don't-book statement. Use one of the three exact shapes above — match the verdict.
-- "verdictUrgency" must name a concrete number of changes ("2–3 key changes", "major changes") — creates action pressure. Empty string only when the verdict is "Proceed".
-- "verdictOutcome" must begin with "As planned," and name the FEELING of the trip as planned.
-- "biggestRisk" must name a SPECIFIC decision (base, timing, routing) that blocks what the traveler wants. Concrete, not poetic. No vague "energy" or metaphor. Shape: 'Basing in X puts you in Y — and blocks the Z you actually want.'
+- "verdictUrgency" is a BLUNT one-line summary of what is wrong. No "needs X changes" framing. Calm, not aggressive — but no softness.
+- "verdictOutcome" must begin with "As planned," and CONNECT the mismatch to the lost experience using an em-dash. Name the concrete failure scene (crowded zones, peak hours, generic tier) AND the specific experience it kills.
+- "biggestRisk" must name a SPECIFIC decision (base, timing, routing) that blocks what the traveler wants.
+- "patternOpener" must use the exact "Most people get {destination} wrong the same way:" shape, ending with a colon.
+- "patternInsight" starts with "They" and names the repeatable mistake — not advice, not a suggestion. Insider-knowledge tone.
 - "why" MUST be 3–4 bullets. Each is a single line.
-- "howToFix" MUST have 3 to 5 items. Each step is specific and executable: name concrete places, neighborhoods, months, hours, or numbers. Include "detail" only when it adds something the title cannot carry alone.
+- "howToFix" MUST have 3 to 5 items. Each reads like LEVERAGE, not a suggestion — at least two items must carry an em-dash clause naming why this specific move is non-optional ("this is the single highest-leverage change you can make", "this is what actually creates the balance you're trying to force"). Name concrete places, neighborhoods, months, hours, or numbers. Details add the concrete payoff or "why this matters" clause.
 - "betterVersion" MUST have 1 to 2 items. Tight and curated.
-- "personalizationCallback" must ECHO the traveler's own selected inputs back in their own words — pull from Desired vibes (${trip.vibes.join(", ") || "—"}) and Non-negotiables (${trip.mustHaves.join(", ") || "—"}). Start with "You said you want". One declarative sentence.
+- "personalizationCallback" must ECHO the traveler's own selected inputs back in their own words — pull from Desired vibes (${trip.vibes.join(", ") || "—"}) and Non-negotiables (${trip.mustHaves.join(", ") || "—"}). Start with "You said you wanted" and end with "this version is the first one that actually delivers {all three|both|that}". One declarative sentence.
+- "finalPlanLeadin" must use the exact "If you book this version, here's how it plays out:" frame — short bridging line that makes the final plan feel bookable, not theoretical.
 - "finalPlan" MUST be 2 to 4 legs. Together the day ranges must cover the full trip length (${nights} nights) without overlap or gaps, starting at Day 1. Each leg has 2–3 behavioral rules specific to that location — not generic "book early" filler. Reflect the prescribed upgrades (better neighborhoods, splits, timing) rather than the user's original plan.
 - "planTeaser" MUST be EXACTLY 3 entries — Day 1, Day 2, Day 3 — reflecting the PRESCRIBED version of the trip. Each line under 14 words. Specific places and behaviors.
 - "whyThisWorks" must name the BEHAVIORAL PRINCIPLE the plan executes (separating X from Y, front-loading, splitting bases, sequencing intensity) — not a summary of the plan. Lowercase start. Under 22 words.
 - "finalPlanOwnership" must echo the traveler's selected vibes (${trip.vibes.join(", ") || "—"}) in their own words, exactly in the shape shown. One declarative sentence.
-- "styleNote" must be ONE line: two sentences separated by a period. No newline. Under 32 words total. Must name the SPECIFIC destination (${trip.destination}) and a concrete failure mode of winging it — not generic "it skews chaotic".
+- "styleNote" must be ONE line: two sentences separated by a period. No newline. Under 30 words total. Must name the SPECIFIC destination (${trip.destination}) and a concrete failure mode of winging it — not generic "it skews chaotic".
 - Risks are five fields even though the UI surfaces four; always return all five.
 - No itineraries. No hotel names. No restaurant names. No maps. No booking links. No URLs. No emoji. No apps or tools. (Neighborhoods, landmarks, and regions ARE allowed and encouraged for specificity.)
 - Tailor every line to the destination, vibes, dates, and budget given. Generic advice is a failure.`;

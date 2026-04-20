@@ -217,27 +217,27 @@ function generateInstantResult(trip) {
     : "";
 
   const outcomeByVibe = {
-    peaceful: `As planned, this trip will feel crowded instead of calm.`,
-    luxury: `As planned, this trip will feel generic instead of elevated.`,
-    aesthetic: `As planned, this trip will feel ordinary instead of photogenic.`,
-    adventure: `As planned, this trip will feel padded instead of adventurous.`,
-    social: `As planned, this trip will feel quiet instead of social.`,
+    peaceful: `As planned, this trip puts you in crowded, high-traffic zones at peak hours \u2014 which kills the calm you\u2019re after.`,
+    luxury: `As planned, this trip keeps you in ${dest}\u2019s most generic tier \u2014 which blocks the elevated experience you came for.`,
+    aesthetic: `As planned, this trip drops you into the most photographed, crowded corners \u2014 which flattens the aesthetic you want.`,
+    adventure: `As planned, this trip pads days with logistics and caf\u00e9s \u2014 which crowds out the adventure you came for.`,
+    social: `As planned, this trip isolates you in quieter zones at the wrong hours \u2014 which kills the energy you want.`,
   };
   const firstVibe = vibes[0];
   const verdictOutcome =
     outcomeByVibe[firstVibe] ||
-    `As planned, this trip will feel busier than what you\u2019re hoping for.`;
+    `As planned, this trip puts you in the default routing \u2014 which works against what you\u2019re actually hoping for.`;
 
   const biggestRiskByConcern = {
-    crowds: `Basing in one high-traffic area of ${dest} puts you in constant noise \u2014 and blocks the calm you actually want.`,
+    crowds: `Basing in one high-traffic area of ${dest} puts you in constant noise \u2014 and blocks the calm you came for.`,
     weather: `Your dates land inside ${dest}\u2019s worst weather window \u2014 and block the conditions you came for.`,
-    cost: `Your current budget puts you in ${dest}\u2019s most generic layer \u2014 and blocks the quality you actually want.`,
-    disappointment: `Your current routing stretches ${dest} across one base \u2014 and blocks the trip you\u2019re imagining.`,
+    cost: `Your current budget puts you in ${dest}\u2019s most generic tier \u2014 and blocks the quality you came for.`,
+    disappointment: `Routing ${dest} from one base stretches the trip thin \u2014 and blocks the version you\u2019re imagining.`,
   };
   const biggestRisk = biggestRiskByConcern[concern] || biggestRiskByConcern.crowds;
 
   const why = [
-    `Your dates put ${dest} inside its busiest visitor window`,
+    `Your dates sit inside ${dest}\u2019s busiest visitor window`,
     `One base won\u2019t deliver the variety this destination needs`,
     `Your vibes lean ${vibes[0] || "calm"}; default routing runs the other way`,
     `Without early starts, the best hours are already gone`,
@@ -245,20 +245,20 @@ function generateInstantResult(trip) {
 
   const howToFix = [
     {
+      title: `Do major sights before 9am \u2014 this is the single highest-leverage change you can make`,
+      detail: "Morning windows are 60\u201370% less crowded and set the pace of every other day.",
+    },
+    {
+      title: `Split ${dest} into two bases \u2014 this is what actually creates the calm + city balance you\u2019re trying to force`,
+      detail: "Separates intensity from recovery. Both work better alone than stacked.",
+    },
+    {
       title: `Shift your base to a quieter side of ${dest}`,
-      detail: "Single highest-leverage move \u2014 it changes the texture of every day.",
-    },
-    {
-      title: "Do the major sights before 9am, not midday",
-      detail: "Morning windows are 60\u201370% less crowded and set the whole day's pace.",
-    },
-    {
-      title: `Split ${dest} into two bases instead of one`,
-      detail: "Separates the calm from the intensity \u2014 both work better alone.",
+      detail: "Why this matters: your base changes the texture of every day, not just one.",
     },
     {
       title: "Keep one full day unplanned",
-      detail: "Unplanned slack is where the memorable moments actually land.",
+      detail: "Why this matters: unplanned slack is where the memorable moments actually land.",
     },
   ];
 
@@ -301,10 +301,11 @@ function generateInstantResult(trip) {
   return {
     verdict: "Proceed with caution",
     verdictPosition: "We would book this \u2014 with the changes below.",
-    verdictUrgency: "This trip needs 2\u20133 key changes to actually work.",
+    verdictUrgency: "You\u2019re close \u2014 but your current setup works against your goals.",
     verdictOutcome,
     confidence: 78,
     biggestRisk,
+    patternOpener: buildPatternOpener(trip),
     patternInsight: buildPatternInsight(trip),
     why,
     risks: {
@@ -317,8 +318,9 @@ function generateInstantResult(trip) {
     howToFix,
     betterVersion,
     betterVersionOutro:
-      "This version delivers your goal: the trip you actually came for, without the friction.",
+      "This version delivers your goal: the trip you came for, without the friction.",
     personalizationCallback: "",
+    finalPlanLeadin: "If you book this version, here\u2019s how it plays out:",
     finalPlan,
     planTeaser,
     whyThisWorks:
@@ -397,6 +399,19 @@ function renderResults(trip, r, opts = {}) {
 
   // biggest risk
   document.getElementById("biggestRisk").textContent = r.biggestRisk || "—";
+
+  // pattern opener — "Most people get <dest> wrong the same way:"
+  const patternOpenerEl = document.getElementById("patternOpener");
+  const patternOpenerText = ((r.patternOpener || "").toString().trim()) || buildPatternOpener(trip);
+  if (patternOpenerEl) {
+    if (patternOpenerText) {
+      patternOpenerEl.textContent = patternOpenerText;
+      patternOpenerEl.hidden = false;
+    } else {
+      patternOpenerEl.textContent = "";
+      patternOpenerEl.hidden = true;
+    }
+  }
 
   // pattern insight — one-line supporting observation under biggest risk
   const patternEl = document.getElementById("patternInsight");
@@ -503,6 +518,12 @@ function renderResults(trip, r, opts = {}) {
 
   // final plan — "Book this version instead" (day-grouped legs)
   const finalPlanSection = document.getElementById("finalPlanSection");
+  const finalPlanLeadinEl = document.querySelector(".final-plan__leadin");
+  if (finalPlanLeadinEl) {
+    const leadinText = (r.finalPlanLeadin || "").toString().trim() ||
+      "If you book this version, here\u2019s how it plays out:";
+    finalPlanLeadinEl.textContent = leadinText;
+  }
   const finalPlanList = document.getElementById("finalPlanList");
   finalPlanList.innerHTML = "";
   const finalPlan = Array.isArray(r.finalPlan) ? r.finalPlan.slice(0, 4) : [];
@@ -671,8 +692,8 @@ function defaultPosition(key) {
 
 function defaultUrgency(key) {
   if (key === "proceed") return "";
-  if (key === "rethink") return "This trip needs major changes before it can work.";
-  return "This trip needs 2–3 key changes to actually work.";
+  if (key === "rethink") return "This trip, as planned, will not deliver what you want.";
+  return "You\u2019re close \u2014 but your current setup works against your goals.";
 }
 
 function normalizeLevel(v) {
@@ -772,10 +793,18 @@ function buildPersonalizationCallback(trip, serverText) {
   if (text) return text;
   const inputs = describeTripInputs(trip);
   const joined = joinDescriptors(inputs);
+  const deliverance =
+    inputs.length >= 3
+      ? "all three"
+      : inputs.length === 2
+      ? "both"
+      : inputs.length === 1
+      ? "that"
+      : "what you asked for";
   if (!joined) {
-    return "You told us what you want — this version actually delivers that.";
+    return "You told us what you wanted \u2014 this version is the first one that actually delivers it.";
   }
-  return `You said you want ${joined} \u2014 this version actually delivers that.`;
+  return `You said you wanted ${joined} \u2014 this version is the first one that actually delivers ${deliverance}.`;
 }
 
 function escapeHtml(s) {
@@ -788,10 +817,21 @@ function escapeHtml(s) {
 }
 
 // ---------------------------- pattern insight (client-side)
-// Produces a short, slightly unexpected observation keyed off the user's
-// own inputs. Meant to create the "oh wow, that's true" moment in the
-// instant result — the background API can still replace this with a
-// destination-specific model insight.
+// Two-part structure: an opener that names the destination ("Most people get
+// Paris wrong the same way:") followed by a short, slightly unexpected
+// observation keyed off the user's own inputs. The background API can still
+// replace both with destination-specific model output.
+
+function shortDestination(dest) {
+  const raw = (dest || "").toString().trim();
+  if (!raw) return "this trip";
+  return raw.split(/[,\u2014\-]/)[0].trim() || raw;
+}
+
+function buildPatternOpener(trip) {
+  const name = shortDestination(trip.destination);
+  return `Most people get ${name} wrong the same way:`;
+}
 
 function buildPatternInsight(trip) {
   const vibes = trip.vibes || [];
@@ -799,33 +839,33 @@ function buildPatternInsight(trip) {
   const has = (x) => vibes.includes(x) || mustHaves.includes(x);
 
   if (has("peaceful") && has("social")) {
-    return "Most people get this wrong by trying to force calm and nightlife into the same base.";
+    return "They try to force calm and nightlife into the same base \u2014 and get neither.";
   }
   if (has("peaceful") && has("beach")) {
-    return "You picked peaceful, but the default routing puts you in the busiest beach zone.";
+    return "They pick peaceful, then book the busiest beach zone by default.";
   }
   if (has("aesthetic") && has("low-crowds")) {
-    return "The spots that photograph best are the ones everyone else already found.";
+    return "They chase the most photographed spots \u2014 exactly where everyone else already is.";
   }
   if (has("luxury") && has("adventure")) {
-    return "Luxury and adventure pull in opposite directions — one base almost always sacrifices one.";
+    return "They try to stack luxury and adventure from one base \u2014 both get watered down.";
   }
   if (has("adventure") && has("walkable")) {
-    return "Walkable bases feel calm — but quietly cut off the trips you actually came for.";
+    return "They stay walkable for the calm \u2014 and quietly cut off the trips they came for.";
   }
   if (trip.concern === "cost" && has("luxury")) {
-    return "Your budget lands in the most generic tier — the one spend that rarely pays off.";
+    return "They land in the most generic tier \u2014 the one spend that rarely pays off.";
   }
   if (trip.concern === "crowds") {
-    return "Your dates are fine — it’s your setup that puts you inside the crowd.";
+    return "They base in high-traffic areas and try to find calm inside them.";
   }
   if (trip.concern === "weather") {
-    return "Most people miss that the weather risk here is the routing, not the season.";
+    return "They blame the season \u2014 but the routing, not the weather, is what ruins the days.";
   }
   if (trip.concern === "disappointment") {
-    return "The disappointment almost always comes from one base, not from the destination.";
+    return "The disappointment almost always comes from the base, not the destination.";
   }
-  return "Most people get this wrong by trying to do everything from one base.";
+  return "They base in high-traffic areas and try to find calm inside them.";
 }
 
 // ---------------------------- presets (quick-start trips)
