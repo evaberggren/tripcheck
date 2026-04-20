@@ -208,6 +208,34 @@ function renderResults(trip, r) {
     verdictOutcomeEl.hidden = true;
   }
 
+  // urgency line — creates action pressure under the verdict headline
+  const verdictUrgencyEl = document.getElementById("verdictUrgency");
+  const urgencyText = (r.verdictUrgency || "").toString().trim() || defaultUrgency(verdictKey);
+  if (urgencyText && verdictKey !== "proceed") {
+    verdictUrgencyEl.textContent = urgencyText;
+    verdictUrgencyEl.hidden = false;
+  } else {
+    verdictUrgencyEl.textContent = "";
+    verdictUrgencyEl.hidden = true;
+  }
+
+  // plan preview — 3 sample day lines under the CTA, teaser opacity
+  const previewEl = document.getElementById("verdictPreview");
+  const previewLines = Array.isArray(r.planTeaser)
+    ? r.planTeaser.filter((l) => typeof l === "string" && l.trim()).slice(0, 3)
+    : [];
+  previewEl.innerHTML = "";
+  if (previewLines.length) {
+    previewLines.forEach((line) => {
+      const li = document.createElement("li");
+      li.textContent = line;
+      previewEl.appendChild(li);
+    });
+    previewEl.hidden = false;
+  } else {
+    previewEl.hidden = true;
+  }
+
   const conf = clamp(Number(r.confidence) || 0, 0, 100);
   document.getElementById("confidenceFill").style.width = `${conf}%`;
   document.getElementById("confidenceValue").textContent = `${Math.round(conf)}%`;
@@ -358,10 +386,24 @@ function renderResults(trip, r) {
   const ownershipEl = document.getElementById("finalPlanOwnership");
   ownershipEl.textContent = buildOwnershipLine(trip, r.finalPlanOwnership);
 
+  // personalization callback before the plan — echoes the user's own inputs
+  const callbackEl = document.getElementById("personalizationCallback");
+  callbackEl.textContent = buildPersonalizationCallback(trip, r.personalizationCallback);
+
+  // why this works — short reasoning line after the itinerary
+  const whyEl = document.getElementById("finalPlanWhy");
+  const whyText = (r.whyThisWorks || "").toString().trim();
+  if (whyText) {
+    whyEl.innerHTML = `<span class="final-plan__why-label">Why this works:</span> ${escapeHtml(whyText)}`;
+    whyEl.hidden = false;
+  } else {
+    whyEl.hidden = false;
+  }
+
   // style note
   document.getElementById("styleNote").textContent =
     r.styleNote ||
-    `You\u2019re ${trip.style || "balanced"} \u2014 but this trip only works if you\u2019re intentional. Without a plan, it skews chaotic.`;
+    `You\u2019re ${trip.style || "balanced"} \u2014 but ${trip.destination || "this trip"} punishes loose planning. Without early starts and a split, the trip defaults to crowded and forgettable.`;
 }
 
 // ---------------------------- verdict CTAs + retry actions
@@ -472,6 +514,12 @@ function defaultPosition(key) {
   return "We would book this — with the changes below.";
 }
 
+function defaultUrgency(key) {
+  if (key === "proceed") return "";
+  if (key === "rethink") return "This trip needs major changes before it can work.";
+  return "This trip needs 2–3 key changes to actually work.";
+}
+
 function normalizeLevel(v) {
   const s = (v || "").toString().toLowerCase();
   if (s.startsWith("h")) return "high";
@@ -532,4 +580,54 @@ function buildOwnershipLine(trip, serverText) {
   const descriptors = describeTripVibes(trip);
   const joined = joinDescriptors(descriptors) || "calm, intentional";
   return `This version actually delivers the ${joined} trip you\u2019re looking for.`;
+}
+
+// Personalization callback echoes the user's OWN chosen inputs back at them,
+// in the phrasing they selected — the core move is "you said X, we deliver X".
+const CALLBACK_VIBE_WORDS = {
+  peaceful: "peaceful",
+  luxury: "luxury",
+  aesthetic: "aesthetic",
+  adventure: "adventure",
+  social: "social",
+};
+const CALLBACK_MUST_WORDS = {
+  walkable: "walkable",
+  beach: "beach",
+  "luxury-hotel": "a luxury hotel",
+  "low-crowds": "low crowds",
+  "good-food": "great food",
+};
+
+function describeTripInputs(trip) {
+  const words = [];
+  (trip.vibes || []).forEach((v) => {
+    const w = CALLBACK_VIBE_WORDS[v];
+    if (w && !words.includes(w)) words.push(w);
+  });
+  (trip.mustHaves || []).forEach((m) => {
+    const w = CALLBACK_MUST_WORDS[m];
+    if (w && !words.includes(w)) words.push(w);
+  });
+  return words.slice(0, 3);
+}
+
+function buildPersonalizationCallback(trip, serverText) {
+  const text = (serverText || "").toString().trim();
+  if (text) return text;
+  const inputs = describeTripInputs(trip);
+  const joined = joinDescriptors(inputs);
+  if (!joined) {
+    return "You told us what you want — this version actually delivers that.";
+  }
+  return `You said you want ${joined} \u2014 this version actually delivers that.`;
+}
+
+function escapeHtml(s) {
+  return String(s)
+    .replace(/&/g, "&amp;")
+    .replace(/</g, "&lt;")
+    .replace(/>/g, "&gt;")
+    .replace(/"/g, "&quot;")
+    .replace(/'/g, "&#39;");
 }

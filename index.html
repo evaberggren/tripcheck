@@ -197,6 +197,9 @@
         <article class="verdict" id="verdictCard">
           <p class="verdict__label">TripLens verdict</p>
           <h3 class="verdict__headline" id="verdictHeadline">Proceed with caution</h3>
+          <p class="verdict__urgency" id="verdictUrgency">
+            This trip needs 2–3 key changes to actually work.
+          </p>
           <p class="verdict__position" id="verdictPosition">
             We would book this — with the changes below.
           </p>
@@ -215,7 +218,14 @@
               Save this plan
             </button>
           </div>
-          <p class="verdict__micro">Takes ~2 minutes</p>
+          <p class="verdict__micro" id="verdictMicro">
+            This turns your fix into a clear, bookable plan.
+          </p>
+          <ol class="verdict__preview" id="verdictPreview" aria-label="Plan preview">
+            <li>Day 1: Arrive, settle in Leblon, sunset at Arpoador</li>
+            <li>Day 2: Christ + Sugarloaf early, beach after 3pm</li>
+            <li>Day 3: Hike Dois Irmãos, slow afternoon</li>
+          </ol>
 
           <div class="verdict__confidence">
             <span class="verdict__confidence-label">Confidence</span>
@@ -230,7 +240,7 @@
         <article class="biggest-risk">
           <p class="biggest-risk__label">Your biggest risk</p>
           <blockquote class="biggest-risk__quote" id="biggestRisk">
-            This will feel busier and louder than you want.
+            Basing in Copacabana puts you in constant noise — and blocks the calm you actually want.
           </blockquote>
           <p class="biggest-risk__pattern" id="patternInsight">
             Most people get this wrong by trying to do everything from one base.
@@ -274,15 +284,22 @@
           <p class="plan-leadin__promise">
             This is the version that actually works:
           </p>
+          <p class="plan-leadin__callback" id="personalizationCallback">
+            You said you want peaceful, aesthetic, low crowds — this version actually delivers that.
+          </p>
         </aside>
 
         <!-- 5c. Book this version instead — final plan -->
         <article class="final-plan" id="finalPlanSection">
           <p class="final-plan__eyebrow">The final plan</p>
-          <h4 class="section-title">Book this version instead</h4>
+          <h4 class="section-title">Your trip, fixed</h4>
           <ol class="final-plan__list" id="finalPlanList">
             <!-- days injected -->
           </ol>
+          <p class="final-plan__why" id="finalPlanWhy">
+            <span class="final-plan__why-label">Why this works:</span>
+            you’re separating calm and intensity instead of forcing both into one place.
+          </p>
           <p class="final-plan__ownership" id="finalPlanOwnership">
             This version actually delivers the calm, aesthetic, low-crowd trip you’re looking for.
           </p>
@@ -300,12 +317,18 @@
         <article class="style-note">
           <p class="style-note__label">A note on how you travel</p>
           <p class="style-note__body" id="styleNote">
-            You’re balanced — but this trip only works if you’re intentional. Without a plan, it skews chaotic.
+            You’re balanced — but Rio punishes loose planning. Without early starts and a split, the trip defaults to crowded and forgettable.
           </p>
         </article>
 
-        <!-- 8. Retry / next actions -->
+        <!-- 8. Retention / next actions -->
         <footer class="retry">
+          <p class="retry__retention">
+            Save this — most people revisit this before they book.
+          </p>
+          <p class="retry__memory">
+            We’ll remember what you like next time.
+          </p>
           <p class="retry__intro">Not quite right? Try a different lens.</p>
           <div class="retry__actions">
             <button type="button" class="retry__btn" data-retry="dates">

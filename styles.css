@@ -827,6 +827,23 @@ button {
   text-wrap: balance;
 }
 
+.verdict__urgency {
+  margin: 0 auto 1rem;
+  max-width: 40ch;
+  font-family: var(--serif);
+  font-style: italic;
+  font-weight: 400;
+  font-size: clamp(1rem, 1.6vw, 1.12rem);
+  line-height: 1.4;
+  color: var(--sunset);
+  letter-spacing: -0.003em;
+  text-wrap: balance;
+}
+
+.verdict__urgency[hidden] {
+  display: none;
+}
+
 .verdict__position {
   margin: 0 auto 0.75rem;
   max-width: 36ch;
@@ -900,13 +917,43 @@ button {
 }
 
 .verdict__micro {
+  margin: 0 auto 1.15rem;
+  max-width: 42ch;
+  font-family: var(--serif);
+  font-style: italic;
+  font-weight: 300;
+  font-size: 0.98rem;
+  line-height: 1.45;
+  color: var(--ink-muted);
+  letter-spacing: -0.002em;
+  text-wrap: balance;
+}
+
+.verdict__preview {
+  list-style: none;
   margin: 0 auto 1.9rem;
-  font-family: var(--sans);
-  font-size: 0.74rem;
-  letter-spacing: 0.2em;
-  text-transform: uppercase;
-  color: var(--ink-faint);
-  font-weight: 500;
+  padding: 0;
+  max-width: 42ch;
+  display: flex;
+  flex-direction: column;
+  gap: 0.2rem;
+  text-align: left;
+  font-family: var(--serif);
+  font-weight: 300;
+  font-size: 0.88rem;
+  line-height: 1.55;
+  color: var(--ink-soft);
+  opacity: 0.55;
+  letter-spacing: -0.002em;
+}
+
+.verdict__preview li {
+  margin: 0;
+  padding: 0;
+}
+
+.verdict__preview[hidden] {
+  display: none;
 }
 
 .verdict__confidence {
@@ -1573,6 +1620,19 @@ button {
   color: var(--ink);
 }
 
+.plan-leadin__callback {
+  margin: 1.25rem 0 0 !important;
+  max-width: 58ch;
+  font-family: var(--serif);
+  font-style: italic;
+  font-weight: 400;
+  font-size: 1.02rem;
+  line-height: 1.5;
+  color: var(--ink-soft);
+  letter-spacing: -0.002em;
+  text-wrap: pretty;
+}
+
 .final-plan {
   padding: 2.75rem 0 2.25rem;
   border-bottom: var(--rule);
@@ -1680,6 +1740,27 @@ button {
   line-height: 1.5;
 }
 
+.final-plan__why {
+  margin: 2rem 0 0;
+  max-width: 60ch;
+  font-family: var(--serif);
+  font-style: italic;
+  font-weight: 400;
+  font-size: 1.02rem;
+  line-height: 1.55;
+  color: var(--ink-soft);
+  letter-spacing: -0.002em;
+  text-wrap: pretty;
+}
+
+.final-plan__why-label {
+  font-style: normal;
+  font-weight: 600;
+  color: var(--sunset);
+  letter-spacing: 0;
+  margin-right: 0.25rem;
+}
+
 .final-plan__ownership {
   margin: 2.25rem 0 0;
   padding-top: 1.5rem;
@@ -1751,6 +1832,32 @@ button {
   align-items: center;
   gap: 1.5rem;
   text-align: center;
+}
+
+.retry__retention {
+  margin: 0;
+  font-family: var(--serif);
+  font-style: italic;
+  font-weight: 400;
+  font-size: clamp(1rem, 1.8vw, 1.08rem);
+  line-height: 1.45;
+  color: var(--ink-soft);
+  letter-spacing: -0.002em;
+  text-wrap: balance;
+  max-width: 48ch;
+}
+
+.retry__memory {
+  margin: -0.85rem 0 0;
+  font-family: var(--serif);
+  font-style: italic;
+  font-weight: 300;
+  font-size: 0.92rem;
+  line-height: 1.45;
+  color: var(--ink-faint);
+  letter-spacing: 0;
+  text-wrap: balance;
+  max-width: 48ch;
 }
 
 .retry__intro {
