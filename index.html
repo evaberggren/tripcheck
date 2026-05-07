@@ -1,0 +1,440 @@
+<!DOCTYPE html><html lang="en"><head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+    <meta name="color-scheme" content="light">
+    <title>TripLens — a decision engine for your next trip</title>
+    <meta name="description" content="TripLens tells you whether a trip will deliver what you're hoping for — before you book it.">
+    <meta name="theme-color" content="#f7f1e6">
+
+    <link href="https://fonts.googleapis.com/css2?family=Fraunces:ital,opsz,wght@0,9..144,300;0,9..144,400;0,9..144,500;0,9..144,600;1,9..144,300;1,9..144,400&amp;family=Figtree:wght@300;400;500;600&amp;display=swap" rel="stylesheet">
+
+    <link rel="stylesheet" href="/styles.css">
+    <link rel="icon" href="data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 64 64'><rect width='64' height='64' rx='14' fill='%23f1e7d3'/><circle cx='26' cy='32' r='12' fill='none' stroke='%231c1a17' stroke-width='3'/><line x1='35' y1='41' x2='46' y2='52' stroke='%231c1a17' stroke-width='3' stroke-linecap='round'/></svg>">
+  </head>
+  <body>
+    <div class="grain" aria-hidden="true"></div>
+
+    <header class="site-header">
+      <a class="wordmark" href="/" aria-label="TripLens, home">
+        <svg class="wordmark__lens" viewBox="0 0 32 32" aria-hidden="true" focusable="false">
+          <circle cx="13" cy="13" r="9" fill="none" stroke="currentColor" stroke-width="1.6"></circle>
+          <line x1="19.5" y1="19.5" x2="28" y2="28" stroke="currentColor" stroke-width="1.6" stroke-linecap="round"></line>
+        </svg>
+        <span class="wordmark__text">TripLens</span>
+      </a>
+      <nav class="site-nav" aria-label="Primary">
+        <span class="site-nav__tag">Est. 2026 · Lisbon / New York</span>
+        <a class="site-nav__link" href="#manifesto">Manifesto</a>
+      </nav>
+    </header>
+
+    <!-- Diagnostic signals overlay. Streams 4–5 rapid diagnostic signals
+         during the ~1.4s analysis phase. Then dissolves. Not a load gate —
+         results are already mounted behind it. -->
+    <div class="diagnostic-phase" id="diagnosticPhase" role="status" aria-live="polite" hidden="">
+      <div class="diagnostic-phase__panel">
+        <p class="diagnostic-phase__label">Running diagnostics</p>
+        <ul class="diagnostic-phase__list" id="diagnosticPhaseList"></ul>
+      </div>
+    </div>
+
+    <main id="app" class="app">
+      <!-- ============================== ENTRY SCREEN ============================== -->
+      <section class="view view--entry" data-view="entry" aria-labelledby="entry-heading">
+        <div class="entry__editorial">
+          <p class="entry__kicker">A second opinion · Issue N<span class="small-caps">o</span> 01</p>
+          <h1 id="entry-heading" class="entry__headline">
+            Run your trip through
+            <span class="entry__headline-accent">TripLens</span>.
+          </h1>
+          <p class="entry__dek">
+            Most trips look right before you book them.
+            Wrong base, wrong timing, wrong rhythm — and the whole thing
+            plays out differently in real life.
+            TripLens catches that before you pay for it.
+          </p>
+          <p class="entry__hook">
+            Most people only run this after they’ve already booked wrong.
+          </p>
+
+          <aside class="entry__quote" aria-hidden="true">
+            <span class="entry__quote-mark">“</span>
+            <p>
+              We were about to base the whole week in Positano. TripLens
+              showed us we’d hit the coast at its loudest every day.
+              We changed the plan and the trip felt completely different.
+            </p>
+            <cite>— Priya Raghavan, returning traveler</cite>
+          </aside>
+        </div>
+
+        <form class="intake" id="intakeForm" novalidate="">
+          <p class="intake__lead">Tell us the trip you’re considering.</p>
+
+          <div class="presets" aria-label="Popular trip checks">
+            <p class="presets__label">Or try a preset</p>
+            <div class="presets__row">
+              <button type="button" class="preset" data-preset="amalfi">Amalfi Coast</button>
+              <button type="button" class="preset" data-preset="tulum">Tulum</button>
+              <button type="button" class="preset" data-preset="tokyo">Tokyo</button>
+              <button type="button" class="preset" data-preset="paris">Paris</button>
+              <button type="button" class="preset" data-preset="rio">Rio</button>
+            </div>
+          </div>
+
+          <div class="intake__grid">
+            <label class="field field--span-6">
+              <span class="field__label">Destination</span>
+              <input type="text" name="destination" required="" placeholder="Cinque Terre, Italy" autocomplete="off" spellcheck="false">
+            </label>
+
+            <label class="field field--span-6">
+              <span class="field__label">Departing from</span>
+              <input type="text" name="origin" required="" placeholder="Chicago, IL" autocomplete="off" spellcheck="false">
+            </label>
+
+            <label class="field field--span-3">
+              <span class="field__label">Arrive</span>
+              <input type="date" name="startDate" required="">
+            </label>
+
+            <label class="field field--span-3">
+              <span class="field__label">Depart</span>
+              <input type="date" name="endDate" required="">
+            </label>
+
+            <label class="field field--span-3">
+              <span class="field__label">Travelers</span>
+              <input type="number" name="travelers" min="1" max="12" value="2" required="">
+            </label>
+
+            <label class="field field--span-3">
+              <span class="field__label">Budget, total (USD)</span>
+              <input type="number" name="budget" min="200" step="50" placeholder="4,200" required="">
+            </label>
+          </div>
+
+          <fieldset class="chips" data-name="vibes" data-max="3">
+            <legend>
+              The vibe you’re hoping for
+              <span class="chips__hint">pick up to three</span>
+            </legend>
+            <div class="chips__row">
+              <label class="chip"><input type="checkbox" value="peaceful"><span>Peaceful</span></label>
+              <label class="chip"><input type="checkbox" value="luxury"><span>Luxury</span></label>
+              <label class="chip"><input type="checkbox" value="aesthetic"><span>Aesthetic</span></label>
+              <label class="chip"><input type="checkbox" value="adventure"><span>Adventure</span></label>
+              <label class="chip"><input type="checkbox" value="social"><span>Social</span></label>
+            </div>
+          </fieldset>
+
+          <fieldset class="chips" data-name="mustHaves">
+            <legend>
+              Non-negotiables
+              <span class="chips__hint">pick any</span>
+            </legend>
+            <div class="chips__row">
+              <label class="chip"><input type="checkbox" value="walkable"><span>Walkable</span></label>
+              <label class="chip"><input type="checkbox" value="beach"><span>Beach</span></label>
+              <label class="chip"><input type="checkbox" value="luxury-hotel"><span>Luxury hotel</span></label>
+              <label class="chip"><input type="checkbox" value="low-crowds"><span>Low crowds</span></label>
+              <label class="chip"><input type="checkbox" value="good-food"><span>Good food</span></label>
+            </div>
+          </fieldset>
+
+          <div class="intake__grid intake__grid--tight">
+            <fieldset class="radios field--span-6">
+              <legend class="field__label">What worries you most</legend>
+              <div class="radios__row">
+                <label class="radio"><input type="radio" name="concern" value="crowds" required=""><span>Crowds</span></label>
+                <label class="radio"><input type="radio" name="concern" value="weather"><span>Weather</span></label>
+                <label class="radio"><input type="radio" name="concern" value="cost"><span>Cost</span></label>
+                <label class="radio"><input type="radio" name="concern" value="disappointment"><span>Disappointment</span></label>
+              </div>
+            </fieldset>
+
+            <fieldset class="radios field--span-6">
+              <legend class="field__label">How you travel</legend>
+              <div class="radios__row">
+                <label class="radio"><input type="radio" name="style" value="wanderer" required=""><span>Wanderer</span></label>
+                <label class="radio"><input type="radio" name="style" value="planner"><span>Planner</span></label>
+                <label class="radio"><input type="radio" name="style" value="balanced"><span>Balanced</span></label>
+              </div>
+            </fieldset>
+          </div>
+
+          <div class="intake__footer">
+            <p class="intake__reassure">
+              No account. No upsell. We don’t sell you hotels.
+            </p>
+            <button type="submit" class="cta" id="analyzeBtn">
+              <span class="cta__label">Analyze my trip</span>
+              <svg class="cta__arrow" viewBox="0 0 24 24" aria-hidden="true">
+                <path d="M4 12h15m0 0-5.5-5.5M19 12l-5.5 5.5" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"></path>
+              </svg>
+            </button>
+          </div>
+
+          <p class="intake__error" id="intakeError" hidden=""></p>
+        </form>
+
+        <footer id="manifesto" class="entry__manifesto">
+          <p>
+            TripLens exists to tell you if a trip will actually deliver what
+            you’re hoping for — before you book it.
+          </p>
+        </footer>
+      </section>
+
+      <!-- ============================== RESULTS SCREEN ============================== -->
+      <section class="view view--results" data-view="results" aria-labelledby="results-heading" hidden="">
+        <aside class="shared-banner" id="sharedBanner" hidden="">
+          <p class="shared-banner__label">A shared TripLens diagnosis</p>
+          <p class="shared-banner__lede">
+            Someone ran this trip through TripLens and sent it your way.
+          </p>
+          <a class="shared-banner__cta" href="/">Run your own trip →</a>
+        </aside>
+
+        <div class="results__meta">
+          <p class="results__eyebrow">
+            <span id="resultTripline">Cinque Terre · 5 nights · Aug 3</span>
+          </p>
+          <h2 id="results-heading" class="results__heading">Your diagnosis</h2>
+        </div>
+
+        <p class="results__framing">
+          A decisive read on what breaks, what to replace it with, and what to book instead.
+        </p>
+
+        <!-- 1. VERDICT — one clear line + one sharp sentence -->
+        <article class="verdict" id="verdictCard">
+          <p class="verdict__label">TripLens verdict</p>
+          <h3 class="verdict__headline" id="verdictHeadline">Proceed with caution</h3>
+          <p class="verdict__urgency" id="verdictUrgency">
+            The plan you’ve drawn up routes you into the loudest version of this trip — at the worst hours.
+          </p>
+
+          <div class="verdict__actions">
+            <button type="button" class="cta verdict__cta" id="planCta">
+              <span class="cta__label">Get the version that works</span>
+              <svg class="cta__arrow" viewBox="0 0 24 24" aria-hidden="true">
+                <path d="M4 12h15m0 0-5.5-5.5M19 12l-5.5 5.5" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"></path>
+              </svg>
+            </button>
+            <button type="button" class="verdict__save" id="savePlanBtn" aria-expanded="false" aria-controls="savePanel">
+              Save the fix
+            </button>
+          </div>
+          <div class="save-panel" id="savePanel" hidden="">
+            <p class="save-panel__title">Send this to yourself</p>
+            <form class="save-panel__form" id="savePanelForm" novalidate="">
+              <label class="save-panel__field">
+                <span class="save-panel__label">Email</span>
+                <input type="email" name="email" required="" autocomplete="email" placeholder="you@example.com">
+              </label>
+              <label class="save-panel__field">
+                <span class="save-panel__label">First name <span class="save-panel__optional">(optional)</span></span>
+                <input type="text" name="firstName" autocomplete="given-name">
+              </label>
+              <label class="save-panel__check">
+                <input type="checkbox" name="subscribe" checked="">
+                <span>Email me this and future TripLens fixes</span>
+              </label>
+              <button type="submit" class="save-panel__submit">Save and send</button>
+            </form>
+            <p class="save-panel__confirm" id="savePanelConfirm" hidden="">
+              Saved. You’ll have this when you’re ready to book.
+            </p>
+          </div>
+
+          <div class="verdict__confidence">
+            <div class="verdict__confidence-track" aria-hidden="true">
+              <div class="verdict__confidence-fill" id="confidenceFill" style="width: 82%"></div>
+            </div>
+            <p class="verdict__confidence-note" id="confidenceNote">
+              Confidence: 82% this version underperforms
+            </p>
+          </div>
+        </article>
+
+        <!-- Consequence block — what happens if you booked this as-is -->
+        <article class="consequence" id="consequenceSection">
+          <p class="consequence__label">If you booked this as-is</p>
+          <ul class="consequence__list" id="consequenceList">
+            <!-- bullets injected -->
+          </ul>
+          <p class="consequence__net" id="consequenceNet">
+            <span class="consequence__net-label">Net</span>
+            You’d experience this destination at the wrong rhythm.
+          </p>
+        </article>
+
+        <!-- Share this diagnosis — inline copy-text panel -->
+        <aside class="share" id="shareBlock">
+          <div class="share__lines">
+            <p class="share__pretext">
+              We were about to book this trip completely wrong — this caught it.
+            </p>
+          </div>
+          <div class="share__actions">
+            <button type="button" class="share__btn" id="shareBtn" aria-expanded="false" aria-controls="sharePanel">
+              <svg class="share__icon" viewBox="0 0 24 24" aria-hidden="true" focusable="false">
+                <path d="M14 4h5v5M19 4l-8 8M10 6H6a2 2 0 0 0-2 2v10a2 2 0 0 0 2 2h10a2 2 0 0 0 2-2v-4" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"></path>
+              </svg>
+              <span class="share__label">Send this to someone you’re traveling with</span>
+            </button>
+            <p class="share__status" id="shareStatus" aria-live="polite"></p>
+          </div>
+          <div class="share-panel" id="sharePanel" hidden="">
+            <p class="share-panel__text" id="sharePanelText">We ran this trip through TripLens. It said our current plan is close, but not quite right. The fix is splitting the stay, protecting early hours, and keeping one day open.</p>
+            <button type="button" class="share-panel__copy" id="sharePanelCopy">Copy</button>
+          </div>
+        </aside>
+
+        <!-- 2. CORE FAILURE — what's structurally wrong (2–4 bullets) -->
+        <article class="core-failure" id="coreFailureSection">
+          <p class="core-failure__label">Core failure</p>
+          <h4 class="section-title">What’s structurally wrong</h4>
+          <blockquote class="core-failure__lede" id="coreFailureLede">
+            Your current plan is not failing on taste. It is failing on structure.
+          </blockquote>
+          <ul class="core-failure__list" id="coreFailureList">
+            <!-- bullets injected -->
+          </ul>
+        </article>
+
+        <!-- 3. PREDICTIVE SIGNALS — 2 specific constraints most travelers miss -->
+        <article class="predictive" id="predictiveSection">
+          <p class="predictive__eyebrow">Predictive signals</p>
+          <h4 class="section-title">Two things most travelers miss</h4>
+          <ul class="predictive__list" id="predictiveList">
+            <!-- injected -->
+          </ul>
+          <p class="predictive__teaser">
+            Exact windows, route timing, and threshold logic unlock with TripLens Plan.
+          </p>
+        </article>
+
+        <!-- 4. PRESCRIPTION — non-negotiable moves -->
+        <article class="prescribe" id="howToFixSection">
+          <p class="prescribe__eyebrow">Prescription</p>
+          <h4 class="section-title">Non-negotiable moves</h4>
+          <ol class="prescribe__list" id="howToFixList">
+            <!-- items injected -->
+          </ol>
+        </article>
+
+        <!-- 5. BEFORE VS AFTER — contrast their plan vs the optimized one -->
+        <article class="before-after" id="beforeAfter">
+          <p class="before-after__eyebrow">Before vs After</p>
+          <h4 class="section-title">What your plan creates — and what replaces it</h4>
+          <div class="before-after__grid">
+            <section class="before-after__col before-after__col--before">
+              <p class="before-after__tag">Current plan</p>
+              <ul class="before-after__list" id="beforeList">
+                <!-- injected -->
+              </ul>
+            </section>
+            <section class="before-after__col before-after__col--after">
+              <p class="before-after__tag">Optimized plan</p>
+              <ul class="before-after__list" id="afterList">
+                <!-- injected -->
+              </ul>
+            </section>
+          </div>
+          <ul class="before-after__improves" id="beforeAfterImproves">
+            <!-- improvement chips injected -->
+          </ul>
+        </article>
+
+        <!-- 6. CORRECTED VERSION — high-level day structure -->
+        <article class="final-plan" id="finalPlanSection">
+          <p class="final-plan__eyebrow">Corrected version</p>
+          <p class="final-plan__leadin" id="personalizationCallback">
+            You want peaceful, aesthetic, low-crowds, and good food. Your current plan delivers the lunch-rush version of the destination. This one does not.
+          </p>
+          <h4 class="section-title">Your trip, rebuilt</h4>
+          <ol class="final-plan__list" id="finalPlanList">
+            <!-- days injected -->
+          </ol>
+        </article>
+
+        <!-- 7. WHY THIS WORKS — one short logic line -->
+        <article class="why-this-works" id="whyThisWorksSection">
+          <p class="why-this-works__label">Why this works</p>
+          <p class="why-this-works__body" id="whyThisWorksBody">
+            You’re separating calm and intensity, not forcing both into the same base. Calm compounds in the morning; energy lands after 5pm. The plan runs with the city, not against it.
+          </p>
+        </article>
+
+        <!-- 8. CTA HOOK — paid plan unlocks specifics -->
+        <article class="premium" id="premiumSection">
+          <p class="premium__eyebrow">Unlock the bookable version</p>
+          <h4 class="section-title">The specifics sit behind the paid plan</h4>
+          <p class="premium__subcopy">
+            The diagnosis is free. Exact hotels, exact timing windows, and bookings unlock below.
+          </p>
+          <p class="premium__anchor">
+            You’re about to spend thousands on this trip. This is the part that determines whether it actually works.
+          </p>
+          <div class="premium__cards">
+            <article class="premium-card">
+              <h5 class="premium-card__name">TripLens Plan</h5>
+              <p class="premium-card__price">$19</p>
+              <ul class="premium-card__list">
+                <li>exact neighborhoods to base in</li>
+                <li>hour-level timing windows</li>
+                <li>day-by-day flow with slack</li>
+                <li>the one reservation worth holding</li>
+              </ul>
+              <button type="button" class="premium-card__cta">Fix this before you book — $19</button>
+            </article>
+            <article class="premium-card premium-card--plus">
+              <h5 class="premium-card__name">TripLens Plus</h5>
+              <p class="premium-card__price">$49</p>
+              <ul class="premium-card__list">
+                <li>everything above</li>
+                <li>specific hotels, by base</li>
+                <li>flight windows with fare logic</li>
+                <li>curated restaurants, sights, routing</li>
+                <li>shareable bookable version</li>
+              </ul>
+              <button type="button" class="premium-card__cta">Get the full version — $49</button>
+            </article>
+          </div>
+        </article>
+
+        <!-- 9. Retry / next actions -->
+        <footer class="retry">
+          <p class="retry__reuse">
+            Book the corrected version. Run the next trip before you book it.
+          </p>
+          <p class="retry__sub">
+            Most people come back here before they book.
+          </p>
+          <div class="retry__actions">
+            <button type="button" class="retry__btn" data-retry="dates">
+              Different dates
+            </button>
+            <button type="button" class="retry__btn" data-retry="destination">
+              A different destination
+            </button>
+            <button type="button" class="retry__btn" data-iterate="reset">
+              Start over
+            </button>
+          </div>
+        </footer>
+      </section>
+    </main>
+
+    <footer class="site-footer">
+      <p>
+        © <span id="year">2026</span> TripLens. A decision tool, not a planner.
+      </p>
+    </footer>
+
+    <script type="module" src="/app.js"></script>
+  
+
+</body></html>
